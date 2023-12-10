@@ -1,0 +1,76 @@
+---
+title: "Sections"
+description: "Sections (analogous to classes) tie teachers and students together."
+---
+
+| Field                             | Required?      | Misc. info                                                                                                                                                                                                                                                                                                                              |
+| --------------------------------- | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **id**                            | Guaranteed     | Globally unique and stable id for section created by Clever. Used in API calls (ex /v3.0/sections/4fe3ff51dfa547000000041f)                                                                                                                                                                                                             |
+| **district**                      | Guaranteed     | Globally unique and stable id for section's district.                                                                                                                                                                                                                                                                                   |
+| **school**                        | Guaranteed     | Globally unique and stable id for section's school.                                                                                                                                                                                                                                                                                     |
+| **created**                       | Guaranteed     | Resource creation date. UTC time in W3C Date Time Format: YYYY-MM-DDTHH:MM:SS.SSSZ.                                                                                                                                                                                                                                                     |
+| **last\_modified**                | Guaranteed     | Last time resource was updated. Initializes to resource creation date. UTC time in W3C Date Time Format: YYYY-MM-DDTHH:MM:SS.SSSZ.                                                                                                                                                                                                      |
+| **name**                          | Guaranteed     | Clever generates a section name by concatenating "course_name" "- teacher\_last\_name" and "- period", e.g. \_Algebra - Smith - Period 3_. If course name is not present, the section name from the source system is used.                                                                                                              |
+| **sis\_id**                       | Guaranteed     | Internal section identifier from source system. Recommended for use only when matching historical data to new Clever import.                                                                                                                                                                                                            |
+| **subject**                       | Guaranteed     | The subject associated with the section. Possible values: \["english/language arts","math","science","social studies","language","homeroom/advisory", "interventions/online learning","technology and engineering","PE and health","arts and music","other",""\]                                                                        |
+| **students**                      | Guaranteed     | List of ids of students in section.                                                                                                                                                                                                                                                                                                     |
+| **teacher**                       | Guaranteed     | Globally unique and stable id for section's **primary** teacher.                                                                                                                                                                                                                                                                        |
+| **teachers**                      | Guaranteed     | List of ids of co-teachers associated with the section. Primary teacher will be the first id in the array (the same as the "sections.teacher" field)                                                                                                                                                                                    |
+| **links.self**                    | Guaranteed     | Stable link to section.                                                                                                                                                                                                                                                                                                                 |
+| **links.district**                | Guaranteed     | Gets the district for section.                                                                                                                                                                                                                                                                                                          |
+| **links.users**                   | Guaranteed     | Gets the users for a section.                                                                                                                                                                                                                                                                                                           |
+| **links.school**                  | Guaranteed     | Gets the school for a section.                                                                                                                                                                                                                                                                                                          |
+| **links.term**                    | Guaranteed     | Gets the term for a section.                                                                                                                                                                                                                                                                                                            |
+| **links.course**                  | Guaranteed     | Gets the course for a section.                                                                                                                                                                                                                                                                                                          |
+| **grade**                         | Not Guaranteed | Possible values \[ "1", … ,"13", "PreKindergarten", "TransitionalKindergarten", "Kindergarten", "InfantToddler", "Preschool", "PostGraduate", "Ungraded", "Other", ""\]                                                                                                                                                                 |
+| **course**                        | Not Guaranteed | The Clever id of the course associated with the section. This ID is generated based on unique course\_number values. More on this can be found here: [https://dev.clever.com/docs/data-model-quirks-and-supported-features-district-integrations#courses](/docs/data-model-quirks-and-supported-features-district-integrations#courses) |
+| **term\_id**                      | Not Guaranteed | ID of the term associated with the section.                                                                                                                                                                                                                                                                                             |
+| **section\_number**               | Not Guaranteed | Section identifier, set by school or district.                                                                                                                                                                                                                                                                                          |
+| **period**                        | Not Guaranteed | Bell schedule information for the section.                                                                                                                                                                                                                                                                                              |
+| **[ext](/docs/extension-fields)** | Not Guaranteed | Extension fields where field name and value is defined by the district                                                                                                                                                                                                                                                                  |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+  
+  
+### Sections Object Example
+
+JSON
+
+`"data":{
+  "course":"string",// ObjectID: Globally unique and stable ID for section's course
+  "created":"string",// Timestamp: Resource initialization date
+  "district":"string",// ObjectID: Globally unique and stable ID for section's district
+  "ext":{
+  	// String: Extension field names and values are defined by the district
+  },
+  "grade":"string",// String: Grade associated with section
+  "id":"string",// Globally unique and stable ID for the section
+  "last_modified":"string",// Timestamp: Last time resource was updated
+  "name":"string",// String: Name provided by district or generated by Clever
+  "period":"string",// String: Bell schedule information for the section   
+  "school":"string",// ObjectID: Globally unique and stable ID for section's school
+  "section_number":"string",// String: Section number set by school or district
+  "sis_id":"string",// String: Internal section identifier from SIS
+  "students":[""],// List of ObjectIDs: List of IDs of students enrolled in section
+  "subject":"string",// String: Subject associated with section
+  "teacher":"string",// ObjectID: Globally unique and stable ID for section's primary teacher
+  "teachers":[""],// List of ObjectIDs: List of IDs of teachers assocated with section,
+  "term_id":"string"// ObjectID: Globally unique and stable ID for section's term
+}
+`
+
+![](/images/1de2816-sections_api_pic.jpeg "sections_api_pic.jpeg")
+  
+  
+### Related objects
+
+Each section has a primary school and contains students and teacher objects. But be careful, the students and teachers may have a different primary school than the section. For example, an elementary student may be enrolled in a middle school math class.
+
+You'll notice that the section has a `teacher` field as well as a list of `teachers`. If a section has more than one teacher, additional teachers are listed in the `teachers` array. We recommend importing all teachers, not just the primary teacher. 
+
+* [/sections/{id}/course](/reference/getcourseforsection)
+* [/sections/{id}/term](/reference/gettermforsection)
+* [/sections/{id}/students](/reference/getstudentsforsection)
+* [/sections/{id}/teachers](/reference/getteachersforsection)

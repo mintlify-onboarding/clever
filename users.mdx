@@ -1,0 +1,253 @@
+---
+title: "Users"
+description: "The User object is a brand new object within Clever's Data Model and is reflected in updates to other objects and endpoints as well. The User object consolidates all user types, namely students, teachers, contacts, district admins, and staff."
+---
+
+### User Table
+
+Click to view User table fields 
+
+### User
+
+| Field                | Guranteed?     | Description                                                                                                                        |
+| -------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **id**               | Guaranteed     | Globally unique and stable id for all users created by Clever. Used in API calls (ex. /v3.0/users/4fee004cca2e43cf27000007/).      |
+| **district**         | Guaranteed     | Globally unique and stable id for user's district.                                                                                 |
+| **name.first**       | Guaranteed     | User first name                                                                                                                    |
+| **name.last**        | Guaranteed     | User last name                                                                                                                     |
+| **created**          | Guaranteed     | Resource creation date. UTC time in W3C Date Time Format: YYYY-MM-DDTHH:MM:SS.SSSZ.                                                |
+| **last\_modified**   | Guaranteed     | Last time resource was updated. Initializes to resource creation date. UTC time in W3C Date Time Format: YYYY-MM-DDTHH:MM:SS.SSSZ. |
+| **links.self**       | Guaranteed     | Stable link to user.                                                                                                               |
+| **links.district**   | Guaranteed     | Gets the district for a user.                                                                                                      |
+| **links.schools**    | Guaranteed     | Gets all schools for a user.                                                                                                       |
+| **links.sections**   | Guaranteed     | Gets all sections for a user.                                                                                                      |
+| **links.myContacts** | Guaranteed     | Gets all contacts for a student.                                                                                                   |
+| **links.myTeachers** | Guaranteed     | Gets all teachers for a student.                                                                                                   |
+| **links.myStudents** | Guaranteed     | Gets all students for a teacher.                                                                                                   |
+| **email**            | Not Guaranteed | User's email address                                                                                                               |
+| **name.middle**      | Not Guaranteed | User's middle name or initial                                                                                                      |
+
+---
+
+### Student Table
+
+Click to view Student table fields 
+
+### User (Student)
+
+| Field                                  | Guaranteed?    | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| -------------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **roles.student.school**               | Guaranteed     | Globally unique and stable id for student's primary school.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| **roles.student.schools**              | Guaranteed     | List of ids of schools this student is associated with.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **roles.student.enrollments**          | Guaranteed     | List of school enrollments which include school id and start/end dates based on when the student is in at least one active section at a school.                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| **roles.student.sis\_id**              | Guaranteed     | Internal student identifier from source system. Recommended for use only when matching historical data to new Clever import.                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **roles.student.student\_number**      | Not Guaranteed | School or district defined student identifier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| **roles.student.state\_id**            | Not Guaranteed | State student identifier.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **roles.student.location.address**     | Not Guaranteed | Primary student address.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **roles.student.location.city**        | Not Guaranteed | Primary student city.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **roles.student.location.state**       | Not Guaranteed | Primary student state.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **roles.student.location.zip**         | Not Guaranteed | Primary student address ZIP.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| **roles.student.gender**               | Not Guaranteed | Student gender. Possible values \["M","F", "X", ""\].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **roles.student.dob**                  | Not Guaranteed | Student birthdate. MM/DD/YYYY format.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **roles.student.grade**                | Not Guaranteed | Student grade level. Possible values \[ "1", … ,"13", "PreKindergarten", "TransitionalKindergarten", "Kindergarten", "InfantToddler", "Preschool", "PostGraduate", "Ungraded", "Other", ""\].                                                                                                                                                                                                                                                                                                                                                                                      |
+| **roles.student.graduation\_year**     | Not Guaranteed | Graduation year provided by district.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| **roles.student.ell\_status**          | Not Guaranteed | Student English Language Learner (or Limited English Proficiency) status. Possible values \["Y", "N", ""\]. Experimental field - may not be covered in all systems.                                                                                                                                                                                                                                                                                                                                                                                                                |
+| **roles.student.frl\_status**          | Not Guaranteed | Student’s lunch status."Free", "Reduced", "Paid", ""                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| **roles.student.iep\_status**          | Not Guaranteed | Student’s special education status.Supported values: Y N                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+| **roles.student.race**                 | Not Guaranteed | Student's race. Possible values: \["Caucasian", "Asian", "Black or African American", "American Indian", "Hawaiian or Other Pacific Islander", "Two or More Races","Unknown", ""\].                                                                                                                                                                                                                                                                                                                                                                                                |
+| **home\_language**                     | Not Guaranteed | Language spoken in the home setting. Possible values: \[Supported values: ”English”, ”Albanian”,”Amharic”, ”Arabic”, ”Bengali”, ”Bosnian”,”Burmese”, ”Cantonese”, ”Chinese”,”Dutch”, ”Farsi”, ”French”, ”German”,”Hebrew”, ”Hindi”, ”Hmong”, ”Ilocano”,”Japanese”, ”Javanese”, ”Karen”, ”Khmer”,”Korean”, ”Laotian”, ”Latvian”, ”Malay”,”Mandarin”, ”Nepali”, ”Oromo”, ”Polish”,”Portuguese”, ”Punjabi”, ”Romanian”,”Russian”, ”Samoan”, ”Serbian”, ”Somali”,”Spanish”, ”Swahili”, ”Tagalog”, ”Tamil”,”Telugu”, ”Thai”, ”Tigrinya”, ”Turkish”,”Ukrainian”, ”Urdu”, ”Vietnamese”.\] |
+| **roles.student.hispanic\_ethcnicity** | Not Guaranteed | Student's Hispanic/Latino ethnicity. Possible values: \["Y", "N", ""\].                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| **roles.student.ext**                  | Not Guaranteed | Extension fields where field name and value is defined by the district                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| **roles.student.district\_username**   | Not Guaranteed | Student's preferred username, specified by district.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+
+---
+
+### Teacher User Type
+
+Click to view User(Teacher) table fields 
+
+### User (Teacher)
+
+| Teacher                                          | Guaranteed?    | Description                                                                                                                  |
+| ------------------------------------------------ | -------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| **roles.teacher.legacy\_id**                     | Guaranteed     | Globally unique and stable id for teacher from earlier API version                                                           |
+| **roles.teacher.school**                         | Guaranteed     | Globally unique and stable id for teacher's primary school.                                                                  |
+| **roles.teacher.schools**                        | Guaranteed     | List of ids of schools this teacher is associated with.                                                                      |
+| **roles.teacher.sis\_id**                        | Guaranteed     | Internal teacher identifier from source system. Recommended for use only when matching historical data to new Clever import. |
+| **roles.teacher.teacher\_number**                | Not Guaranteed | District or school assigned teacher identifier.                                                                              |
+| **roles.teacher.state\_id**                      | Not Guaranteed | State teacher identifier.                                                                                                    |
+| **roles.teacher.ext**                            | Not Guaranteed | Extension fields where field name and value is defined by the district                                                       |
+| **roles.teacher.title**                          | Not Guaranteed | Teacher's title                                                                                                              |
+| **roles.teacher.credentials.district\_username** | Not Guaranteed | Teacher's preferred username, specified by district.                                                                         |
+
+---
+
+### Staff User Type
+
+Click to view User(Staff) table fields 
+
+### User (Staff)
+
+| Staff                                          | Guaranteed?    | Description                                                                        |
+| ---------------------------------------------- | -------------- | ---------------------------------------------------------------------------------- |
+| **roles.staff.legacy\_id**                     | Guaranteed     | Globally unique and stable id for staff from earlier API versions                  |
+| **roles.staff.roles**                          | Guaranteed     | Possible values: \["PortalOnly, "SchoolTechLead"\]                                 |
+| **roles.staff.schools**                        | Guaranteed     | List of ids of schools this staff member is associated with.                       |
+| **roles.staff.staff\_id**                      | Guaranteed     | An identifier provided by the district when syncing or creating this staff member. |
+| **roles.staff.title**                          | Not Guaranteed | The staff member's job title, if specified.                                        |
+| **roles.staff.department**                     | Not Guaranteed | Department provided by the district                                                |
+| **roles.staff.ext**                            | Not Guaranteed | Extension fields where field name and value are defined by the district            |
+| **roles.staff.credentials.district\_username** | Not Guaranteed | Staff member's preferred username, specified by district.                          |
+
+---
+
+### District Admin User Type
+
+Click to view User(District Admin) table fields 
+
+### Users (Admin)
+
+| District Admin                       | Guaranteed?    | Description                                                                         |
+| ------------------------------------ | -------------- | ----------------------------------------------------------------------------------- |
+| **roles.district\_admin.legacy\_id** | Guaranteed     | Globally unique and stable id for district administrators from earlier API versions |
+| **roles.district\_admin.title**      | Not Guaranteed | The district admin's job title, if specified.                                       |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+
+### Users Object Example
+
+JSON
+
+`"data":{
+    "created":"string",// ObjectID: Globally unique and stable ID for student
+    "district":"string",// ObjectID: Globally unique and stable ID for users' district
+    "email":"string",//String: Email address provided by district
+    "id":"string",//ObjectID: Globally unique and stable ID for User
+    "last_modified":"string",// Timestamp: Last time resource was modified
+    "name":{
+      "first":"string",// String: First name provided by district
+      "last":"string",// String: Last name provided by district
+      "middle":"string"// String: middle name provided by district
+    },
+    "roles":{
+      "contact":{
+        "legacy_id":"string",// Former Clever ID for User record
+        "phone":"string",// String: Contact phone number
+        "phone_type":"Cell",// String: Phone number type
+        "sis_id":"string",// String: Internal identifier for contact assigned by SIS
+        "student_relationships":[
+          // String: Students the contact has a relationship with
+        ]
+      },
+      "district_admin":{
+        "legacy_id":"string",// Former Clever ID for User record
+        "title":"string"// String: Title provided by district
+      },
+      "staff":{
+        "credentials": {
+          "district_username": "" // String: District-specified username
+        },
+        "department":"string",// String: Department provided by district
+        "ext": {
+          // String: Extension field names and values are defined by the district
+        },
+        "legacy_id":"string",// Former Clever ID for User record
+        "roles":[
+          "string" // Staff role, either PortalOnly or SchoolTechLead
+        ],
+        "schools":[
+          "string" // All schools this User is associated with
+        ],
+        "staff_id":"string",// String: Identifier provided by district
+        "title":"string",// String: Title provided by district
+      },
+      "student":{
+        "created":"string",// Timestamp: Resource creation date
+        "credentials":{
+        	"district_username":"string"// String: District-specified student username
+        },
+        "dob":"string",// String: Student birthdate
+        "ell_status":"Y",
+        "enrollments": { //For student school enrollment tracking
+          "school": "", // ObjectID: Globally unique and stable ID for the school
+          "start_date": "", // Date: When student first enrolled in the school in 						Clever
+          "end_date": "", // Date: When student's enrollment in the school ended
+        },
+        "ext": {
+          "": "" // String: Extension field names and values are defined by the 							district
+        },
+        "gender":"M",// String: User gender 
+        "grade":"InfantToddler",// String: User grade
+        "graduation_year":"string",// String: Graduation year provided by district
+        "hispanic_ethnicity":"Y",// Boolean: User's hispanic/latino ethnicity
+        "last_modified":"string",// Timestamp: Last time resource was modified
+        "legacy_id":"string",// Former Clever ID for User record
+        "location": {
+          "state": "", // String: User state
+          "zip": "", // String: User zip
+          "address": "", // String: User street address
+          "city": "", // String: User city
+          "lat": "", // String: User address latitude (Deprecated)
+          "lon": "" // String: User address longitude (Deprecated)
+       },
+       "race":"Caucasian",// String: User race
+       "school":"string",// ObjectID: Globally unique and stable ID for the student's primary school
+       "schools":[
+        // List of ObjectIDs: List of IDs for schools student is associated with
+       ],
+       "sis_id":"string",// String: Internal student identifier from SIS
+       "state_id":"string",// String: State student identifier
+       "student_number":"string",// String: Student number provided by district
+      },
+      "teacher":{
+        "created":"string",// Timestamp: Resource initialization date
+        "credentials":{
+        	"district_username":"string"// String: District-specified username for teacher
+       },
+        "district":"string",// ObjectID: Globally unique and stable ID for User's district
+        "ext": {
+          "": "" // String: Extension field names and values are defined by the district
+        },
+        "last_modified":"string",// Timestamp: Last time resource was updated
+        "legacy_id":"string",// Former Clever ID for User record
+        "name": {
+          "first": "", // String: First name provided by district
+          "last": "", // String: Last name provided by district
+          "middle": "" // String: Middle name provided by district
+        },
+        "school":"string",// ObjectID: Globally unique and stable ID for User's primary school
+        "schools":[
+         // List of ObjectIDs: List of IDs for all schools User is associated with
+        ],
+        "sis_id":"string",//String: Internal teacher identifier from SIS
+        "state_id":"string",// String: State teacher identifier
+        "teacher_number":"string",// String: Teacher number provided by district
+        "title":"string"// String: Title provided by district
+    }
+}
+`
+  
+  
+![685](/images/30f4c05-user_doc_api.jpeg "user_doc_api.jpeg") 
+
+### Related objects
+
+* [/users/{id}/schools](/reference/getschoolsforuser)
+* [/users/{id}/sections](/reference/getsectionsforuser)
+* [/users/{id}/districts](/reference/getdistrictforuser)
+* [/users/{id}/myteachers](/reference/getteachersforuser)
+* [/users/{id}/mycontacts](/reference/getcontactsforuser)
+* [/users/{id}/mystudents](/reference/getstudentsforuser)
+
+> 📘
+> 
+> Important information about student contact data
+> 
+> While we offer student contact information, it is not normalized in the same way that other data is in Clever. Please note:
+> 
+> * The quality and formatting of student contact data can vary between SISs
+> * Contacts without `sis_id` populated are not stable - if any data on the contact changes (such as name, email, or phone number), the contact will be deleted and a new one will be created with a new Clever ID.
+> 
+> For more information, check out [our page on Contacts](/docs/student-contacts)

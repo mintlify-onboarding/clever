@@ -1,0 +1,46 @@
+---
+title: "Migrating to API 3.0"
+description: We now have a migration tool that can help you match user legacy IDs to their new v3.0 IDs! Find out more [here](https://support.clever.com/hc/s/articles/360043514192?language=en%5FUS#Request%20API%20V3%20Migration%20CSVs)
+---
+
+## In-application permissions
+
+### Multi-role users
+
+If your application supports syncing teachers, school admins (now 'staff'), or district admins, it's likely multi-role users currently have separate accounts within your application and therefore receive a set of user permissions based on their role.
+
+Now that one user may have two or all three of these roles, you'll need to consider how you apply access permissions in your product. If, for example, a teacher should have edit permissions for their classrooms and an administrator should have view-all access to their associated school sites, then your application will need to govern their access by ascertaining which classrooms a user directly teaches (/users/{id}/sections) and which schools they administer (/users/{id}/schools).
+
+If permissions are more broadly defined, you could assign a maximum or minimum set of permissions based on which roles are present. For example, if a staff member should always have a super-set of permissions, then a teacher who is also a staff member (or becomes a staff member) should be assigned staff-level permissions.
+
+### Leveraging new staff roles
+
+Within the `staff` response for users with a staff role is now another `roles` designation, indicating whether the user has access as a `PortalOnly` user or whether the district has designated them a `SchoolTechLead` in Clever. [School Tech Leads](https://support.clever.com/hc/en-us/articles/115003207663-Clever-Roles-School-Tech-Lead) support classrooms in their use of technology and receive a special set of permissions and features in Clever. `PortalOnly` staff are given the standard portal experience.
+
+In your application, you might consider granting `SchoolTechLead` users additional access or permissions not afforded to `PortalOnly` staff, based on how those who commonly receive this designation--ed tech coaches, technology specialists--currently support classroom learning with your application.
+
+## Migrating users
+
+For some applications, data need not be stored or revived every new school year for returning users. In these cases, the simplest migration path is to pick a date and time over the summer to switch over to API 3.0, when no users from the prior year are expected to still be using your program. When districts return for Back to School, you'll begin syncing with all new data.
+
+For most partners, we'll want to ensure users are migrated seamlessly to version API 3.0\. 
+
+### Students
+
+All student Clever IDs from all prior API versions will remain the same in API 3.0.
+
+### Teachers, Staff, District Admins
+
+In API 3.0, teacher, staff, and district admin roles contain a `legacy_id` field within each 'role' object, containing the Clever ID from previous API versions. The Clever ID at the /users level should supersede all ids in your database.
+
+#### Multi-role users
+
+For users that now have multiple roles, you'll want to take care to merge records that had previously existed as separate users in prior API versions to the new user Clever ID.
+
+If your application has separate accounts for users that are both teacher and staff, we recommend associating each account with one Clever ID to allow the user the ability to toggle between experiences with one login or select their intended role upon login. To consolidate accounts into one, developers can iterate through each `role` response on the user object and match following the respective fields listed above. If the user matches multiple accounts in your system, associate each with the one provided Clever ID.
+
+If you must create separate accounts for each user type, developers can add complete matching by role by adding the `?role` parameter to the user endpoint, and using the respective role fields. Note: separate accounts will have one Clever ID for updates moving forward.
+
+### Student contacts
+
+Because the structure and presentation of student contacts in API 3.0 is a major departure from prior versions, we recommend you create contacts anew in your system. [See the documentation](/docs/student-contacts) for more details.

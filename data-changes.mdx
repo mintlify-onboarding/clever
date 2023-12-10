@@ -1,0 +1,38 @@
+---
+title: "Data Changes and Rollover"
+---
+
+### Handling data changes in your sync
+
+### Syncing the full data set
+
+The simplest way of syncing changes to the data in Clever is to essentially re-initialize the data set: 
+
+* If you have a record in your database that has the same Clever ID as a record in Clever, update the record in your database with the latest information in Clever.
+* If not, run a match to see if the Clever record matches a record in your database. If there is, merge the records. If not, create a new one.
+* If there is a record in your database with a Clever ID that is not in the data from Clever (or attempting to access that data returns a 404), deactivate the record.
+
+### Constructing "diff" files
+
+Instead of replacing the data in your database with the dataset in our API, you may want to construct a file of the changes that need to be made, which you will then process. There's a few ways of doing this:
+
+* [Events](/docs/events-api) \- of these three options, this is the fastest and most efficient. We recommend setting up an events-based sync for all applications who want to sync at scale.
+* Comparing the two datasets and generating the file based on the differences
+
+### Protecting against unintentional changes
+
+Accidents happen - a district administrator accidentally makes sharing changes that cause a large number of students to be deleted, or an SFTP sync clears out the semester's data mid-term - and, while these are very recoverable, you can defend yourself against them!
+
+In the case where a district sync changes or deletes a significant amount of data, Clever has a hold system that prevents the changes from propagating into our system until approved by a district administrator. This does not, however, protect your application from changes that happen due to sharing changes.
+
+If you find that a significant percentage of records would be deleted, we recommend logging this and pausing the sync until you've confirmed that it's an intentional change with the district administrator. This will save the headache of rolling back data or having to wait until the changes are fixed in the SIS or sharing rules in order for users to have access.
+
+The threshold for the Clever sync during the school year is 10% of any record type changed or deleted (these thresholds are somewhat relaxed during school year rollover, when we expect many users to be updated).
+
+### Semester and school year rollover
+
+Some SISes may reuse sections term-to-term, and only update enrollments, teachers, and terms for each section. Other districts may completely destroy sections as terms roll over, and when a new term begins you would receive all new sections with new Clever IDs. **Your application should be able to gracefully handle both scenarios.**
+
+If your integration uses terms, make sure you're archiving old terms so they can be accessed or reactivated if necessary. 
+
+When it comes to school year rollover, consider your current rollover process: does that need to be modified in any way with the Clever integration? If you're not sure, reach out to us at [\[email protected\]](/cdn-cgi/l/email-protection#71181f051416031005181e1f0231121d140714035f121e1c).

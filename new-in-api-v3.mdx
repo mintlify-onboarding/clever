@@ -1,0 +1,125 @@
+---
+title: "What's New in API v3.0"
+sidebarTitle: "Overview"
+description: Below is a full changelog of what has changed in API v3.0 (12/20). Please reference our [Data Model](/data-model) and [API Explorer](/api-reference) pages for further details and the full API schema. 
+---
+
+## New User Data Object
+
+API v3.0 introduces (/users) as an endpoint bringing students, teachers, staff, district admins, and contacts under one object, individually queryable by adding a role type parameter e.g., /users?role=teacher). 
+
+### Identity API
+
+#### Changed
+
+* The `type` field on `/me` will now return `"user"` for any user records instead of a specific role type.
+
+### Data API
+
+#### Added
+
+Users record type, which replaces District Admins, Staff (formerly known as School Admins), Teachers, and Students, and associated endpoints
+
+* GET `/users`  
+   * `role` parameter, which can be used to filter responses to users that have a specific role
+* GET `/schools/{id}/users`  
+   * `role` parameter, which can be used to filter responses to users that have a specific role
+* GET `/sections/{id}/users`  
+   * `role` parameter, which can be used to filter responses to users that have a specific role
+* GET `/users/{id}`
+* GET `/users/{id}/district`
+* GET `/users/{id}/schools`
+* GET `/users/{id}/myteachers`
+* GET `/users/{id}/mystudents`
+* GET `/users/{id}/mycontacts`
+* GET `/users/{id}/sections`
+* GET `/users/{id}/resources`
+* Contacts now return `student_relationships`, which defines the Contact's `type` and `relationship` with a specific `student`. This replaces the previous top-level `type` and `relationship` fields
+* Staff records return `roles`, which shows the permissions this user has in Clever.
+* Staff records can now be accessed on a per-school basis  
+   * GET `/schools/{id}/users?role=staff`
+* GET `/schools/{id}/users` returns all users for the specified school, even if the school is not the primary school for the user
+* Terms and Courses can now be accessed on a per-school basis  
+   * GET `/schools/{id}/courses`  
+   * GET `/schools/{id}/terms`  
+   * GET `/courses/{id}/schools`  
+   * GET `/terms/{id}/schools`
+
+### Changed
+
+* School Admins are now referred to as `Staff`
+* `/schools/{id}/users` returns all users associated with that school, even if their primary school is not {id}
+
+### Removed
+
+* School endpoints that reference roles instead of users  
+   * GET `/schools/{id}/students`, replaced by GET `/schools/{id}/users?role=student`  
+   * GET `/schools/{id}/teachers`, replaced by GET `/schools/{id}/users?role=teacher`
+* Section endpoints that reference roles instead of users  
+   * `GET /sections/{id}/students`, replaced by GET `/sections/{id}/users?role=student`  
+   * GET `/sections/{id}/teachers`, replaced by GET `/sections/{id}/users?role=teacher`  
+   * GET `/sections/{id}/teacher`
+* Contacts endpoints  
+   * GET `/contacts`, replaced by GET `/users?role=contact`  
+   * GET `/contacts/{id}`, replaced by GET `/users/{id}`  
+   * GET `/contacts/{id}/students`, replaced by GET `/users/{id}/mystudents`  
+   * GET `/contacts/{id}/district`, replaced by GET `/users/{id}/district`
+* District Admins endpoints  
+   * GET `/district_admins`, replaced by GET `/users?role=district_admin`  
+   * GET `/district_admins/{id}`, replaced by `/users/{id}`  
+   * GET `/district_admins/{id}/district`, replaced by GET `/users/{id}/district`
+* School Admins endpoints  
+   * GET `/school_admins`, replaced by GET `/users?role=staff`  
+   * GET `/school_admins/{id}`, replaced by GET `/users/{id}`  
+   * GET `/school_admins/{id}/schools`, replaced by GET `/users/{id}/schools`  
+   * GET `/school_admins/{id}/district`, replaced by GET `/users/{id}/district`
+* Students endpoints  
+   * GET `/students`, replaced by GET `/users?role=student`  
+   * GET `/students/{id}`, replaced by GET `/users/{id}`  
+   * GET `/students/{id}/contacts`, replaced by GET `/users/{id}/mycontacts`  
+   * GET `/students/{id}/school`  
+   * GET `/students/{id}/schools`, replaced by GET `/users/{id}/schools`  
+   * GET `/students/{id}/sections`, replaced by GET `/users/{id}/sections`  
+   * GET `/students/{id}/teachers`, replaced by GET `/users/{id}/myteachers`  
+   * GET `/students/{id}/district`, replaced by GET `/users/{id}/district`
+* Teachers endpoints  
+   * GET `/teachers`, replaced by GET `/users?role=teacher`  
+   * GET `/teachers/{id}`, replaced by GET `/users/{id}`  
+   * GET /teachers/{id}/school  
+   * GET `/teachers/{id}/schools`, replaced by GET `/users/{id}/schools`  
+   * GET `/teachers/{id}/sections`, replaced by GET `/users/{id}/sections`  
+   * GET `/teachers/{id}/students`, replaced by GET `/users/{id}/mystudents`  
+   * GET `/teachers/{id}/district`, replaced by GET `/users/{id}/district`
+
+## Content Mapping API
+
+The Content Mapping API is new to v3.0\. This feature allows districts to indicate via the API which resources should be shared with courses, classes, and users. For ease of understanding, these endpoints are separated here but are part of the Data API in the API explorer.
+
+### Added
+
+* Resources record type, which represents a resource owned and controlled by your application, and associated endpoints  
+   * GET `/resources`  
+   * GET `/resources/{id}`  
+   * GET `/resources/{id}/courses`  
+   * GET `/resources/{id}/sections`  
+   * GET `/resources/{id}/users`  
+         * `role` parameter, which can be used to filter responses to users that have a specific role
+
+## Events API
+
+### Added
+
+* Created/Updated/Deleted events for Users
+
+### Changed
+
+* `record_type` param also allows "users" value
+
+### Removed
+
+* Created/Updated/Deleted events for role-specific records  
+   * `districtadmins.*`, replaced by `users.*`  
+   * `schooladmins.*`, replaced by `users.* `  
+   * `teachers.*`, replaced by `users.*`  
+   * `students.*`, replaced by `users.*`  
+   * `contacts.*`, replaced by `users.*`

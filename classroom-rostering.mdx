@@ -1,0 +1,192 @@
+---
+title: "Library Rostering"
+---
+
+### An example app
+
+Integrating with Clever’s API is very similar to implementing Google login, and should take 3-6 days of development time with one engineer, on average. An example integration can be found at [https://github.com/brettcvz/clever-example-app/](https://github.com/brettcvz/clever-example-app/). 
+
+### Initiating the Single Sign-On Flow
+
+Once the user accepts the data sharing consent screen, they will be routed to your redirect URI with an authentication code, identical to the standard Clever Instant Login (SSO) OAuth flow. Implement a route in your app (this corresponds to your redirect URI) to complete the code exchange for token and receive the user’s bearer token, request the user’s Clever ID and user type via /me endpoint. Follow the steps in [our SSO developer docs](/docs/classroom-with-oauth) for details.
+
+Your Authorization header value will be a string containing the word _Bearer_ followed by a space character and then the access token value you receive after exchanging the auth code.
+
+`GET https://api.clever.com/v3.0/me`  
+Authorization: Bearer {bearer\_token}
+
+Example response
+
+`{
+    "data": {
+        "id": "582d0ce68346314756002152", //Unique Clever ID of teacher
+        "type": "user"
+    },
+    "links": [
+       ...
+    ]
+}
+`
+
+Once you've retrieved the user's Clever ID, you may want to ask the user if they already have an existing account, and if so, if they want to associate their Clever ID with their existing account.
+
+### Determining if this is a district-shared object or a teacher-shared object
+
+Many of our app partners support teachers and students who are shared at the district or school level, in addition to Library users (“teacher-shared”). You should always check to see if the user logging in is shared by the district or by a teacher so that you can route the user appropriately in your system (e.g. to either a premium or free-trial experience).
+
+#### Method 1: Checking for District ID
+
+You may check the JSON response that you receive for the presence of a district ID, which will **always** be present for district-shared data, but will **never** be present for Sign Up with Clever users. You can then redirect the user appropriately, for example, to your paid or free/freemium product.
+
+#### Method 2: “Authorized\_by” parameter (NEW in July 2018)
+
+At the request of several of our partners to better distinguish between teachers shared by the district and Library teachers, we’ve added an “authorized\_by” parameter to the /me endpoint, which takes one of two values:
+
+* “teacher” - this user is shared because of a Sign Up with Clever action by the user or an associated teacher.
+* “district” - this user is shared because their district shared them via Clever.
+
+`GET https://api.clever.com/v3.0/me`  
+Authorization: Bearer {token}
+
+Example response
+
+`{
+    "data": {
+        "id": "582d0ce68346314756002152", //Unique Clever ID of teacher
+        "type": "user",
+        "authorized_by": "teacher" //Indicates this is a teacher-shared object
+    },
+    "links": [
+       ...
+    ]
+}
+`
+
+### Syncing Teacher and Class Data
+
+Here we’ll use the teacher’s Clever ID (obtained above) to retrieve teacher profile data, section data, and student data to create user accounts and teacher-student associations.
+
+> 📘
+> 
+> Recommended Account Provisioning Logic
+> 
+> If teacher’s Clever ID matches in the system → log them in  
+> Else → ask teacher if they want to merge an existing account or create a new one  
+> If merge → prompt for credentials and merge accounts  
+> Else → Create new user
+> 
+> Then, query Clever API for data and update existing records or create new ones → log them in
+
+#### Teacher Profile Data
+
+`GET https://api.clever.com/v3.0/users/{teacher Clever ID}`  
+Authorization: Bearer {token}
+
+Example: /users/582d0ce68346314756002152
+
+`"data": {
+        "email": "[[email protected]](/cdn-cgi/l/email-protection)",
+        "name": {
+            "first": "Bruno",
+            "last": "Mars",
+            "middle": "" //Empty string if not available
+        },
+        "id": "582d0ce68346314756002152"
+    },
+    ...
+`
+
+Once you've retrieved the user's Clever ID, you may want to ask the user if they already have an existing account, and if so, if they want to associate their Clever ID with their existing account.
+
+#### Section Data with Enrollments
+
+`GET https://api.clever.com/v3.0/users/{teacher Clever ID}/sections`  
+Authorization: Bearer {token}
+
+Example /users/582d0cef83463147560037cd/sections
+
+`"data": [ //list of sections taught by this teacher
+    {
+        "data": {
+            "subject": "arts and music",  
+            "grade": "2",
+            "name": "Arts - K2",
+            "students": [  //list of student Clever IDs in the class
+                "582d0d695ff7c2653b015f8c",
+                "582d0d6a5ff7c2653b016117",
+                "582d0d6a5ff7c2653b016226",
+                "582d0d6b5ff7c2653b01641f",
+                "582d0d6f5ff7c2653b016dfd",
+                "582d0d735ff7c2653b0175ae",
+                "582d0d735ff7c2653b0175b0",
+                "582d0d735ff7c2653b0176ce",
+                "582d0d735ff7c2653b0177d3",
+                "582d0d745ff7c2653b0178f5",
+                "582d0d755ff7c2653b017be3",
+                "582d0d755ff7c2653b017bef",
+                "582d0d755ff7c2653b017bf1",
+                "582d0d765ff7c2653b017f48",
+                "582d0d7c5ff7c2653b018de1",
+                "582d0d7c5ff7c2653b018e9a",
+                "582d0d7d5ff7c2653b0190ec",
+                "582d0d7e5ff7c2653b019203",
+                "582d0d7f5ff7c2653b0193eb",
+                "582d0d815ff7c2653b019ad2",
+                "582d0d825ff7c2653b019d03"
+            ],
+                
+            "teacher": "582d0cef83463147560037cd", //primary teacher
+            "teachers": [ //primary teacher and any additional teachers
+                "582d0cef83463147560037cd" 
+            ],
+            "id": "582d0dcb58ed54b269009c3e" //Unique Clever ID of section
+        },
+    },
+    {
+        "data": {
+//next section 
+...
+`
+
+#### Student Profile Data
+
+`GET https://api.clever.com/v3.0/sections/{section Clever ID}/users?role=student`  
+Authorization: Bearer {token}
+
+Example: /sections/582d0dcb58ed54b269009c3e/users?role=student
+
+`"data": [ //list of students in this section
+        {
+            "data": {
+                "grade": "2",
+                "name": {
+                    "first": "Michael",
+                    "last": "J",
+                },
+                "id": "582d0d695ff7c2653b015f8c" //Unique Clever ID of student
+            },
+            ...
+        },
+  {
+            "data": {
+                "grade": "2",
+                "name": {
+                    "first": "Lisa",
+                    "last": "S",
+                },
+                "id": "582d0d6a5ff7c2653b016117" //Unique Clever ID of student
+            },
+            ...
+        },
+        ...
+`
+
+### Onboarding Questions
+
+You may require certain information to create a teacher account, questions that are likely asked during your manual signup process: school association, subjects taught, country, etc. Given that, here, you’re only provided the teacher’s name and email address, if you need additional information from the teacher, **we recommend asking these questions during the teacher’s first-time onboarding into your application.**
+
+Try to minimize steps for the teacher by pre-populating fields with information that is already provided by Clever, for example, teacher email, student grade, class subject. Consider relaxing certain mandatory field requirements for Library-based teachers in order to streamline the first time experience in your application.
+
+### Encoding
+
+Clever supports all UTF-8 characters, and your application should expect to receive special characters that might be found in names/email addresses such as _', -, ñ, à,_ etc.

@@ -1,0 +1,71 @@
+---
+title: "Clever API Overview"
+---
+
+Here, we'll discuss how to access data in our API as well as our API change policy. Check out  
+[our reference docs](/reference/schema) for details on our schema, examples of error handling, and to test API calls.
+
+### Clever API Status
+
+Check [status.clever.com](https://status.clever.com) to view Clever's current system status as well as any past issues. Subscribe so that you can be notified of any issues in the future.
+
+### Access Tokens
+
+There are two methods of accessing our API – district-app tokens and SSO bearer tokens.
+
+### District-App Tokens
+
+Every time a district authorizes your application, a token is created that stores the details of this authorization. A token is a string of characters: `7f76343d50b9e956138169e8cbb4630bb887b18`
+
+> 📘
+> 
+> If you aren't a Secure Sync customer, district-app bearer tokens can only access `/districts/` and its related endpoints. You can access information on other endpoints only with SSO bearer tokens.
+> 
+> Section data and Events can only be accessed with district-app bearer tokens belonging to Secure Sync customers.
+
+See [our article on onboarding districts](/docs/onboarding#section-obtaining-district-app-tokens) for information on obtaining district-app bearer tokens.
+
+### SSO Bearer Tokens
+
+SSO bearer tokens relate to individual students, teachers, district admins and school admins. The data available to these tokens are generally scoped to data "around" the owner of the token. For example, a student token can retrieve information about the student represented by the token, a teacher token can retrieve information about the teacher represented by the token, etc. SSO tokens are strings with an `il` prefix: `il3jsfUI2131da2f`
+
+SSO tokens may only access:
+
+* `/me`
+* `/users/<user id>`
+* `/schools/<school id>`
+* `/districts/<district id>`
+
+> 🚧
+> 
+> Please note that some fields referenced in the schema for these objects are inaccessible via these tokens.
+
+### API Change Policy
+
+Clever is committed to providing the best experience for developers building on our platform. In order to make it easier and faster to build on Clever, we constantly improve by adding new features and deprecating ones that might get in the way. Here's what to expect from Clever when we make changes to our API.
+
+### Switching to a new API version
+
+You can make calls against new versions of the API by updating your URLs (e.g. [https://api.clever.com/v3.0/district](https://api.clever.com/v3.0/district)). For detailed information on upgrading to this version, check out [Migrating to API v3.0](/docs/migrating-to-api-30).
+
+### Releasing new versions
+
+We’re committed to releasing major versions (e.g. v2.0) no more than once per year. Minor versions (e.g. v1.2) will be released as needed.
+
+We define a minor release as one that will only add new features (e.g. response fields, input parameters, endpoints, etc.) and fix small bugs and will be backwards compatible. Major version releases may also contain features that are not backwards compatible and feature deprecations.
+
+When a new version is officially released, new applications will not be able to use any previous version of our API.
+
+### Updating versions after release
+
+While we consider new versions code complete upon official release, we recognize that bugs can slip by our testing processes! For three months after a version is released, we will make updates to the version to fix any existing bugs. Once three months have passed, we will freeze the version as-is and make no further updates.
+
+#### Global changes
+
+We sometimes need to make changes to all API versions - if we do, we will use the [v1.1 API Change Policy](/v1.1/docs/api-overview).
+
+### Deprecating existing versions
+
+We mark versions of our API as deprecated in our documentation when new customers can no longer use the version (which happens when we release a new version). However, we will continue to support versions marked as deprecated!
+
+We’re still thinking about what sunsetting support for an API would look like in the future.

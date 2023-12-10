@@ -1,0 +1,40 @@
+---
+title: "Libraries and Sample Code"
+---
+
+It's easy to work with Clever's REST API and authentication routines without needing specialized libraries. If you can issue & receive HTTP requests and process JSON response bodies, you have everything you need for a Clever integration.
+
+### OAuth 2.0 libraries
+
+You don't really need a client library for OAuth 2.0 – the flows boil down to simple HTTP. If you have a HTTP interface in your programming language of choice, you already have an OAuth 2.0 client. OAuth 2.0 also isn't just "one thing" — it's a collection of approaches for service providers (like Clever) and client applications (like yours) to authorize users and authenticate requests. Often OAuth 2.0 libraries serve both audiences simultaneously, leaving you with a heavy duty library better suited for service providers when you just want to do some basic HTTP.
+
+> 📘
+> 
+> When evaluating OAuth 2.0 libraries, make sure you're not working with an OAuth 1.0A library -- Clever does not support the more complicated OAuth 1.0A authentication.
+
+### Clever API libraries
+
+Clever does not maintain any libraries but If you would like to generate your own using the swagger file, it is available at [https://github.com/Clever/swagger-api](https://github.com/Clever/swagger-api). 
+
+Clever offers a few community supported libraries that wrap REST API access with object interfaces. While these libraries won't necessarily help you obtain access tokens, they do make it easier for you to retrieve and operate on Clever data once you've obtained them.
+
+**Community Supported:**
+
+* [clever-php](https://github.com/Clever/clever-php/)
+* [clever-java](https://github.com/Clever/clever-java)
+* [clever-ruby](https://github.com/Clever/clever-ruby)
+* [clever-csharp](https://github.com/Clever/clever-csharp)
+* [clever-python](https://github.com/Clever/clever-python)
+* [clever-go](https://github.com/Clever/clever-go)
+* [clever-js](https://github.com/Clever/clever-js)
+
+> 🚧
+> 
+> Community supported libraries are not actively maintained by Clever, although we do review & merge incoming pull requests.
+
+### Clever iOS SDK
+
+If you have native iOS application, the Clever iOS SDK allows you to easily implement our requirements for certification. For more details, see Instant Login - Native iOS Apps.
+
+* [Github](https://github.com/Clever/ios-sdk)
+* [CocoaPods](http://cocoapods.org/pods/CleverSDK)

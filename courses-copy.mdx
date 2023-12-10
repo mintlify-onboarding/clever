@@ -1,0 +1,57 @@
+---
+title: "Resources"
+description: "Resources are an optional data type - resources can be created by applications and assigned to courses by district admins."
+---
+
+In the district dashboard, district administrators can associate specific resources with specific courses in their SIS data. See the article below for more details:
+
+[https://support.clever.com/hc/s/articles/360052615892?language=en\_US](https://support.clever.com/hc/s/articles/360052615892?language=en%5FUS)
+
+| Field              | Guaranteed?    | Description                                                                                                                   |
+| ------------------ | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **id**             | Guaranteed     | Globally unique and stable id for resource created by Clever. Used in API calls (ex /v3.0/resources/4fe3ff51dfa547000000041f) |
+| **district**       | Guaranteed     | Globally unique and stable id for resource's district.                                                                        |
+| **resource\_id**   |                |                                                                                                                               |
+| **title**          |                |                                                                                                                               |
+| **roles**          |                |                                                                                                                               |
+| **created**        |                |                                                                                                                               |
+| **updated**        |                |                                                                                                                               |
+| **links.district** | Guaranteed     | Gets the district for a course.                                                                                               |
+| **links.sections** | Guaranteed     | Gets all sections for a course.                                                                                               |
+| **links.self**     | Guaranteed     | Stable link to course.                                                                                                        |
+| **name**           | Not Guaranteed | Name provided by district.                                                                                                    |
+| **number**         | Not Guaranteed | Course number provided by district.                                                                                           |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+  
+  
+### Resrouces Object Example
+
+JSON
+
+`{
+  "data": [
+    {
+      "data": {
+        "created": "2023-11-21T21:43:55.407Z",
+        "district": "string",
+        "id": "string",
+        "resource_id": "string",
+        "roles": [
+          "teacher"
+        ],
+        "title": "string",
+        "updated": "2023-11-21T21:43:55.407Z"
+      }
+    }
+ }
+`
+
+![](/images/f54c614-course_api_doc.jpeg "course_api_doc.jpeg")
+  
+  
+### Related objects
+
+To retrieve a list of the section objects associated with a course, use [/courses/{id}/sections](/reference/getsectionsforcourse).

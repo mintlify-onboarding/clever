@@ -1,0 +1,52 @@
+---
+title: "2b. OIDC Implementation"
+---
+
+> 📘
+> 
+> Get Set Up for OIDC
+> 
+> To use OpenID Connect with Clever and receive identity tokens, you must first contact [\[email protected\]](/cdn-cgi/l/email-protection#fc959288999b8e9d889593928fbc9f90998a998ed29f9391) to have your application account appropriately configured.
+
+  
+If you are building out an OIDC SSO integration yourself, the implementation will be exactly like that of the [OAuth Flow](/docs/oauth-implementation) with the key difference being the receipt of an **identity token** and access to the **userinfo endpoint**. 
+
+  
+### Working with Third-Party Authentication Services
+
+  
+One of the benefits of OpenID Connect is that it specifies a standard way for identity providers to share configuration information, which means that connecting with any third-party authentication service only requires providing a few key details.
+
+  
+### The Discovery Endpoint
+
+  
+An OIDC compliant provider such as Clever shares necessary information about their requirements at something called the discovery endpoint. Clever's discovery endpoint is:
+
+  
+`https://clever.com/.well-known/openid-configuration`
+
+  
+Even this endpoint is set up according to a standard format, so in many cases all you need to know is that Clever supports OIDC and the issuer is `https://clever.com`.
+
+  
+The discovery endpoint tells any authentication service where and how to kick off the authentication process, get tokens, and verify the tokens.
+
+  
+### An Example Configuration
+
+  
+Setting up OIDC with most authentication services usually only requires filling out a few fields. This example is for AWS Cognito, but the required fields should be similar for many other providers:
+
+  
+![593](/images/f022a80-AWS_OIDC_configuration.png "AWS OIDC configuration.png")
+
+Example OIDC configuration for AWS Cognitio
+
+  
+* **Provider name:** this can be anything you'd like to use, but "Clever" makes a lot of sense here!
+* **Client ID:** your application's Client ID, found on the Clever application dashboard
+* **Client secret:** your application's Client secret. This is required for authenticating with Clever
+* **Attributes request method:** Clever supports both POST and GET
+* **Authorize scope:** Clever manages scopes through application configuration, so this is not required by Clever. However, some authentication services may still require a value of openid at a minimum
+* **Issuer:** this is used to make a call to the discovery endpoint to grab the rest of the information needed to connect with Clever

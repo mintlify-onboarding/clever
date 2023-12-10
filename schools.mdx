@@ -1,0 +1,83 @@
+---
+title: "Schools"
+description: "While schools are not the highest-level object in Clever's data model, every user, term, course, and section must be associated with at least one school. User records can be associated with multiple schools!"
+---
+
+| Field                             | Guaranteed?    | Description                                                                                                                                                             |
+| --------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **id**                            | Guaranteed     | Globally unique and stable id for school created by Clever. Used in API calls (ex. /v3.0/schools/4fe3ff50dfa5470000000001).                                             |
+| **district**                      | Guaranteed     | Globally unique and stable id for school's district.                                                                                                                    |
+| **name**                          | Guaranteed     | School name.                                                                                                                                                            |
+| **created**                       | Guaranteed     | Resource creation date. UTC time in W3C Date Time Format: YYYY-MM-DDTHH:MM:SS.SSSZ.                                                                                     |
+| **last\_modified**                | Guaranteed     | Initializes to created date                                                                                                                                             |
+| **sis\_id**                       | Guaranteed     | Internal school identifier from source system. Recommended for use only when matching historical data to new Clever import.                                             |
+| **school\_number**                | Guaranteed     | District or county school identifier.                                                                                                                                   |
+| **links.self**                    | Guaranteed     | Stable link to school.                                                                                                                                                  |
+| **links.district**                | Guaranteed     | Gets the district for a school.                                                                                                                                         |
+| **links.sections**                | Guaranteed     | Gets all sections for a school.                                                                                                                                         |
+| **links.users**                   | Guaranteed     | Gets all users for a school.                                                                                                                                            |
+| **links.terms**                   | Guaranteed     | Gets all terms for a school.                                                                                                                                            |
+| **links.courses**                 | Guaranteed     | Gets all courses for a school.                                                                                                                                          |
+| **state\_id**                     | Not Guaranteed | State school identifier.                                                                                                                                                |
+| **nces\_id**                      | Not Guaranteed | Federal NCES id for school.                                                                                                                                             |
+| **mdr\_number**                   | Not Guaranteed | MDR number (used for matching school records)                                                                                                                           |
+| **low\_grade**                    | Not Guaranteed | Possible values \[ "1", … ,"13", "PreKindergarten", "TransitionalKindergarten", "Kindergarten", "InfantToddler", "Preschool", "PostGraduate", "Ungraded", "Other", ""\] |
+| **high\_grade**                   | Not Guaranteed | Possible values \[ "1", … ,"13", "PreKindergarten", "TransitionalKindergarten", "Kindergarten", "InfantToddler", "Preschool", "PostGraduate", "Ungraded", "Other", ""\] |
+| **principal.name**                | Not Guaranteed | School principal's name.                                                                                                                                                |
+| **principal.email**               | Not Guaranteed | School principal's email address.                                                                                                                                       |
+| **location.address**              | Not Guaranteed | School address.                                                                                                                                                         |
+| **location.city**                 | Not Guaranteed | School address city.                                                                                                                                                    |
+| **location.state**                | Not Guaranteed | School address state.                                                                                                                                                   |
+| **location.zip**                  | Not Guaranteed | School address ZIP.                                                                                                                                                     |
+| **phone**                         | Not Guaranteed | School phone number.                                                                                                                                                    |
+| **[ext](/docs/extension-fields)** | Not Guaranteed | Extension fields where field name and value is defined by the district.                                                                                                 |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+
+### School Objects
+
+JSON
+
+`"data":{
+  "created":"string",// Timestamp: Resource creation date
+  "district":"string",// ObjectID: Globally unique and stable ID for school's district
+  "ext": {
+  	"": "" // String: Extension field names and values are defined by the district
+  },
+  "high_grade":"string",// String: School's exit grade level
+  "id":"string",// ObjectID: Globally unique and stable ID for school created by Clever
+  "last_modified":"string",// Timestamp: Last time resource was updated.
+  "location": {
+  	"zip": "string", // String: School's zip code
+    "address": "string", // String: School's street address
+    "city": "string", // String: School's city
+    "state": "string" // String: School's state
+  },
+  "low_grade":"string",// String: School's beginning grade level
+  "mdr_number":"string",// String: School MDR number
+  "name":"string",//String: Name provided by district
+  "nces_id":"string",// String: School NCES ID
+  "phone":"string",// String School's phone number
+  "principal": { 
+  	"email": "string", // String: School's principal's email address
+  	"name": "string" // String: School's principal's name
+  },
+  "school_number":"string",// String: School identifier used by district or county
+  "sis_id":"string",// String: Internal school identifier from SIS
+  "state_id":"string"// String: State school identifier
+}
+`
+
+![580](/images/7350a0f-schools_pic_doc.png "schools_pic_doc.png") 
+  
+  
+### Related objects
+
+To access the sections, courses, terms, or users associated with a school, use these endpoints:
+
+* [/schools/{id}/sections](/reference/getsectionsforschool)
+* [/schools/{id}/courses](/reference/getcoursesforschool)
+* [/schools/{id}/terms](/reference/gettermsforschool)
+* [/schools/{id}/users](/reference/getusersforschool)

@@ -1,0 +1,133 @@
+---
+title: "3c. Secure Sync Certification Guide"
+---
+
+## How Long Does it Take?
+
+The time it takes to build an integration with Clever varies depending on your business needs, data model, and technical constraints.
+
+Once you have built a Clever integration, you may submit to become certified. After you submit your certification, our Partner Engineering team will review your integration in accordance with our Certification requirements. This typically takes 5 business days but times can vary depending on availability. You’ll receive an email as soon as we finish reviewing your integration with your certification results and recommended next steps. If needed, we will schedule a call to go over the integration in greater detail.
+
+## How do I get started?
+
+In order to build your integration and submit for certification, you’ll need to:
+
+1. [Create a development app in Clever](https://apps.clever.com/signup)
+2. Submit your application icon during application setup (square vector file, typically in SVG or AI format)
+3. Review the certification requirements for the integrations you are building:
+4. Read through our API documentation and begin building your integration!
+
+## Checklist
+
+You will need to ensure the following items are complete before submitting for certification.
+
+* Visit [Clever Academy](https://clever.academy/) to make sure you understand how Clever works.
+* If you've built an SSO integration, be sure to check the District SSO Checklist and Requirements [here](/docs/district-sso-certification-guide). You do **not** need to submit an additional District SSO Certification Survey.
+* Ensure that your integration meets the integration requirements listed below
+
+### Requirements
+
+* Must use Clever ID as a key identifier for all data types
+* Must have a strategy for matching existing users to Clever data
+* Must update data at least once per day (if data is updated upon login, this will suffice)
+* Must archive records when data in Clever is unshared/deleted, and restore records if the Clever ID reappears (this includes Terms and Courses)
+* Must be able to handle missing data fields for non-required (non-guaranteed) fields per [Clever's data schema](https://clever.com/schema)
+* If application tracks historical data, history must be tied to student record
+* Student-teacher associations must be preserved (if applicable)
+
+### Important questions to answer
+
+#### General questions
+
+* Which version of Clever's API are you using?
+* Which field does your application use as the key identifier from Clever?
+* What's the top-level or central record in your data model?
+* What are the steps that need to be taken for a district to get set up with your application via Clever?
+* Does your application use district-app tokens to sync data?
+* Does your application need to run a sync to initialize data in the account before they can log in?
+* How does your application handle missing fields which are not required / guaranteed in Clever?
+* Does your application update data upon login or with a daily batched sync?
+
+#### Provisioning accounts
+
+* Which Clever user types will have accounts in your application?
+* Do you support a user type that has more access than teachers?
+
+#### Matching
+
+* How will you match Clever districts with existing districts in your CRM / database?
+* How will you match Clever schools with existing schools in your CRM / database?
+* Does your application match user records in order to preserve historical/progress data and accounts? If so, how?
+
+#### Rostering
+
+* Does your application sync student-teacher associations from Clever?
+
+#### Ongoing updates
+
+* How often is a new sync triggered, and how?
+* Do you update data on user login, using full data syncs, or using events?
+
+#### Admin edits
+
+* Can a teacher or admin do any of the following:
+* Edit the permissions a user has or assign additional roles to a user
+* Create users who are not managed by the Clever sync
+* Create groups of students that are not managed by the Clever sync
+* Split a section into subgroups
+* Add or remove students from a section that is synced by Clever
+* If you can do any of the above, will the changes persist until manually edited, or will the update be overwritten or deleted on the next Clever sync?
+
+#### Updating and Deleting Records
+
+* What happens if a student moves between classes?
+* What happens if a student moves between schools?
+* What do you do if a record is deleted from Clever and no longer appears in the API?
+* Can a record be restored after it has been deleted / archived?
+
+#### Student progress
+
+* Does your application store progress data for display or reporting purposes (e.g. lesson completion, attendance, user-generated content, etc.)?
+* Is there any case where progress data would be deleted?
+
+#### Rollover
+
+* How do you handle semester or school year rollover?
+
+### If you provision or update accounts on login:
+
+* Which record types do you store/access?
+* What happens when a user logs in for the first time?
+* What happens when a user logs in after their account has been provisioned?
+
+### If your application requires an initializing sync:
+
+* Who kicks off the initial sync?
+* Which record types will be synced?
+
+### If your application has a user type with more access than teachers (administrators):
+
+* What access levels of administrator/super-teacher users do you support, and how do they map (or not map) to Clever user types?
+* If a teacher is also an administrator in Clever, they will have two Clever IDs - one for the teacher record and one for the administrator record. How is this handled in your application?
+
+### If your application uses roster data:
+
+* If you are syncing sections, is there any data on the section object that would change your application's behavior, or assign content or curriculum, etc?
+* How do you handle users who aren't associated with any sections or student-teacher associations?
+* How do you handle users that have multiple sections / student-teacher associations?
+* How do you handle users that are associated with classes / teachers / students in multiple schools?
+* Do you support co-teachers?
+* If you support co-teachers, is there a maximum number of co-teachers that can be associated with a single class?
+
+### If you use events:
+
+* Can you initiate a full data (non-events) sync if needed?
+* Which records do you process events for?
+
+### Sample Edge Case Data
+
+We provide a 5-school data set that we built to help you test some of the tougher edge cases:
+
+* [Certification ISD](https://assets.clever.com/devdocs/CertificationISD.zip)
+
+To see a full list of edge cases and the users that fulfill each one, check out [Certification ISD Edge Cases](https://docs.google.com/spreadsheets/d/1ETku1FnlFN1fNADSpziASnnJIHJMFaUmPWdZzQ06xko/pubhtml).

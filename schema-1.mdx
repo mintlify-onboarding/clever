@@ -1,0 +1,18 @@
+---
+title: "Schema"
+description: "Below each object, we've added a sample record with available fields - we've sorted the fields for clarity, but they may be returned in any order."
+---
+
+#### Field Formats
+
+| Field         | Field Description                                                                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Object ID** | All Clever IDs take the ObjectID format. We guarantee that ObjectIDs are globally unique across districts and User objects.                                   |
+| **String**    | Clever's strings have no maximum length - if you have to set maximum character lengths for fields, we recommend setting the max to 255 characters for safety. |
+| **Date**      | We normalize dates in Clever to YYYY-MM-DD: "2015-08-25"                                                                                                      |
+| **Timestamp** | Timestamps are expressed in this format: "2015-08-25T00:00:00.000Z"                                                                                           |
+| **Boolean**   | Booleans have a value of either "Y" or "N"                                                                                                                    |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**

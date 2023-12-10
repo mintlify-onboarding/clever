@@ -1,0 +1,147 @@
+{
+    "name": "Clever",
+    "logo": {
+      "light": "/logo/light.png",
+      "dark": "/logo/dark.png"
+    },
+    "favicon": "/favicon.png",
+    "colors": {
+      "primary": "#004EE4",
+      "light": "#407CEE",
+      "dark": "#004EE4"
+    },
+    "topbarCtaButton": {
+      "name": "Log In",
+      "url": "https://www.clever.com/"
+    },
+    "tabs": [
+        {
+            "name": "API Reference",
+            "url": "api-reference"
+        }
+    ],
+    "anchors": [
+      {
+        "name": "Support",
+        "icon": "headset",
+        "url": "https://support.clever.com/s/?language=en_US"
+      },
+      {
+        "name": "Status",
+        "icon": "signal-bars",
+        "url": "https://status.clever.com/"
+      },
+      {
+        "name": "Clever Academy",
+        "icon": "school",
+        "url": "https://skilljar-auth.clever.com/?SAMLRequest=fZJLc9owFIX3%2FAqP934JO601wIwLfTBDwRNIF910LvIlUStLVFcm5d%2FXcqBpFol3ls4599zPnhC06sirzj3oW%2FzdIblREPxplSY%2BXE3DzmpugCRxDS0Sd4Jvq68rzuKUH61xRhgVvjC97QEitE4a7U3LxTTcrD%2BuNp%2BX6x9FmRWihH2as33OmhsGNzkyHBc5sOYwLjNWHqBI9974DS31GdOwj%2FTvQVBbc5IN2nU%2FcRpuf0mlfoIN5qazhEGtwB2MbYehRB0uNTnQrg9I2TjKWJSlu%2Bw9Z4zn6XevWvQspAY3THlw7kg8SegSG0FPLBYKT2hjYYbY%2BgLjg9SN1PdvU9g%2FiYh%2F2e3qqN5sdz6iurKZG01di3aL9iQF3t2unjuAEKbTjuJrGV8g8YUSTz9h903milNbpu%2Fo3KspnA2AJv6WD8vb2TXssgIIaLA9J5Pkf9Gz7cg91uWiNkqK83Dun089UXCvb5rF2XAim%2BgwSDm2IFXVNBaJwn85lVLmcW4RXP%2FpnO0wDJLZaPTU5uXvOfsL&RelayState=%2Fauth%2Fendpoint%2Flogin%2Fresult%3Fnext%3D%252F%26d%3D2gd1t5vm907sy&Signature=J5%2FGrAZrgD31eVwMFFk4%2BPK67kVQBDG6v5%2BivC8U%2FOe6eHNOnkUS8G%2Bxv4C6AebzZo4TRWvkjcaD%2BmYoqrDjkwFCh5w8f7mvSC22V4RX10w5uG5C4rRsCK%2FhIpflZjQedd%2F1sfHtlli%2FdkwtswdXXtV1pLwYUfq32EjxCbvO9pc%3D&SigAlg=http%3A%2F%2Fwww.w3.org%2F2000%2F09%2Fxmldsig%23rsa-sha1"
+      }
+    ],
+    "navigation": [
+        {
+            "group": "What's New?",
+            "pages": [
+              "api-v1-deprecation",
+              {
+                "group": "What's New in API v3.0",
+                "pages": [
+                  "new-in-api-v3",
+                  "migrating-to-api-30",
+                  "api-v3-faqs"
+                ]
+              },
+              "updating-to-use-tls-12-on-connect-to-clever-api"
+            ]
+          },
+          {
+            "group": "Clever",
+            "pages": [
+              "getting-started",
+              "security",
+              "library-vs-district"
+            ]
+          },
+        {
+            "group": "Courses",
+            "pages": [
+              "api-reference/courses/get-courses",
+              "api-reference/courses/get-courses-1",
+              "api-reference/courses/get-courses-district",
+              "api-reference/courses/get-courses-resources",
+              "api-reference/courses/get-courses-schools",
+              "api-reference/courses/get-courses-sections"
+            ]
+          },
+          {
+            "group": "Districts",
+            "pages": [
+              "api-reference/districts/get-districts",
+              "api-reference/districts/get-districts-1"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "api-reference/resources/get-resources",
+              "api-reference/resources/get-resources-1",
+              "api-reference/resources/get-resources-courses",
+              "api-reference/resources/get-resources-sections",
+              "api-reference/resources/get-resources-users"
+            ]
+          },
+          {
+            "group": "Schools",
+            "pages": [
+              "api-reference/schools/get-schools",
+              "api-reference/schools/get-schools-1",
+              "api-reference/schools/get-schools-courses",
+              "api-reference/schools/get-schools-district",
+              "api-reference/schools/get-schools-sections",
+              "api-reference/schools/get-schools-terms",
+              "api-reference/schools/get-schools-users"
+            ]
+          },
+          {
+            "group": "Sections",
+            "pages": [
+              "api-reference/sections/get-sections",
+              "api-reference/sections/get-sections-1",
+              "api-reference/sections/get-sections-course",
+              "api-reference/sections/get-sections-district",
+              "api-reference/sections/get-sections-resources",
+              "api-reference/sections/get-sections-school",
+              "api-reference/sections/get-sections-term",
+              "api-reference/sections/get-sections-users"
+            ]
+          },
+          {
+            "group": "Terms",
+            "pages": [
+              "api-reference/terms/get-terms",
+              "api-reference/terms/get-terms-1",
+              "api-reference/terms/get-terms-district",
+              "api-reference/terms/get-terms-schools",
+              "api-reference/terms/get-terms-sections"
+            ]
+          },
+          {
+            "group": "Users",
+            "pages": [
+              "api-reference/users/get-users",
+              "api-reference/users/get-users-1",
+              "api-reference/users/get-users-district",
+              "api-reference/users/get-users-mycontacts",
+              "api-reference/users/get-users-mystudents",
+              "api-reference/users/get-users-myteachers",
+              "api-reference/users/get-users-resources",
+              "api-reference/users/get-users-schools",
+              "api-reference/users/get-users-sections"
+            ]
+          }
+    ],
+    "footerSocials":
+      {
+          "twitter": "https://twitter.com/clever?lang=en",
+          "linkedin": "https://www.linkedin.com/company/clever-inc-/"
+      }
+  }

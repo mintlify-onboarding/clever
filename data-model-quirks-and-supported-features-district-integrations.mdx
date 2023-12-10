@@ -1,0 +1,79 @@
+---
+title: "Data Model Quirks and Supported Features - District Integrations"
+---
+
+Data in Clever can experience a number of edge cases listed below. Although these are not typical cases, it's a good idea to be prepared for these to occur. If your integration cannot handle any of these cases, please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#e48d8a9081839685908d8b8a97a4878881928196ca878b89) to create [Data Warnings](https://support.clever.com/hc/en-us/articles/202043083-What-are-data-warnings-and-data-errors-) to avoid any errors in your sync
+
+> 📘
+> 
+> Users (new to v3.0)
+> 
+> * Users are merged across employees of a district (District Admins, Staff, Teachers) only. This means that it's possible for two users to have the same email address if the email address is also associated with a Student or Contact
+> * If a district changes email addresses for a record, this can cause a User record to get a new Clever ID or for a merged User to be split into multiple users
+> * Full contact name will be stored in the `last_name` field of the user object.
+
+### General
+
+* The district is the top-level object in Clever; even if a single school has signed up for an account, there will still technically be a district object for their account.
+* Clever's strings have no maximum length (if you must specify a field length, we recommend 255 chars as a safe limit)
+* Clever's strings support all UTF-8 characters
+* There isn't a normalization of email format (emails may be missing the '@' sign)
+
+### Terms
+
+* Most districts do not send actual terms to Clever, so most are constructed from information on the section object. As such, districts must sync at least one of `term name` `term start date` or `term end date` in order for a term to be created
+* If all of the sections associated with a term are deleted or the term information changes, the term will be deleted (and potentially recreated).
+* As of 1/31/18, term IDs are not stable, so if a term is deleted and recreated, it will have a new Clever ID.
+
+### Courses
+
+> 📘
+> 
+> Changes for Back to School 2023
+> 
+> Beginning in January 2023, Clever is changing how we process course data to make courses more stable. If districts provide a `course_number` for a course, we will use it as the key ID for the course. This means that:
+> 
+> * If there are multiple courses with the same `course_number` we will merge them into one course.
+> * If changes are made to `course_name` but `course_number` remains stable, we will update the course name instead of deleting and recreating courses.
+> 
+> These changes will released in January 2023 for a small number of districts. We expect to finish rolling out to all districts before Back to School 2023.
+
+* Most districts do not send actual courses to Clever, so most are constructed from information on the section object. As such, districts must sync at least `course_name` in order for a course to be created
+* If all of the sections associated with a course are deleted or the course information changes, the term will be deleted (and a new one may be created).
+* As of 1/31/18, course IDs are not stable, so if a term is deleted and recreated, it will have a new Clever ID.
+
+### Sections
+
+* Sections are the only way student and teacher associations are described in Clever. If a student or teacher is not enrolled in any sections, they will not be associated with any students/teachers.
+* Sections must have at least one student
+* Sections are associated with a school, but the associated students and teachers in the section can be enrolled in any school in the district.
+* Sections can have only one primary teacher, and up to 9 additional co-teachers.
+* There is no limit of how many students may be enrolled in a section
+* Section names are not guaranteed to be unique
+* Section grade might not match all students grades
+
+### Students
+
+* Students can be enrolled in multiple sections
+* Students might not be enrolled in any sections
+* Students can be enrolled in sections in multiple schools
+* Students can be enrolled in sections that contain other students and teachers that are not associated with their primary school
+
+### Teachers
+
+* Teachers can teach multiple sections
+* Teachers might not teach any sections
+* Teachers can teach sections in multiple schools
+* Teachers can teach classes that contain other students and teachers that are not associated with their primary school
+
+### School Administrators
+
+* School administrators can be in multiple schools
+* School administrators do not have a primary school association (there is only a `schools` field, not a `school` field at the `/school_admins` endpoint
+
+### Student Contacts
+
+* Not a guaranteed field from Clever
+* Contact type is not consistent (type varies from SIS to SIS)
+* Information might be limited to one contact per student
+* Full contact name will be stored in the `last_name` field of the user object.

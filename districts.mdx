@@ -1,0 +1,78 @@
+---
+title: "Districts"
+description: "Clever has a district-centric data model – our top-level object is the district. Districts contain schools, terms, courses, sections, and users."
+---
+
+| Field                            | Guaranteed?    | Description                                                                                                                                                                                                                                                            |
+| -------------------------------- | -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **id**                           | Guaranteed     | Globally unique and stable id for district created by Clever. Used in API calls (ex /v3.0/districts/4fd43cc56d11340000000005 )                                                                                                                                         |
+| **name**                         | Guaranteed     | District (or CMO) name.                                                                                                                                                                                                                                                |
+| **sis\_type**                    | Guaranteed     | Indicates the type of SIS this district's data originates from. "sftp" is returned when district data is synced via SFTP or CSV upload. Other string values vary.                                                                                                      |
+| **launch\_date**                 | Guaranteed     | Indicates when the end-users in the district are able to start logging in to the application. ISO 8601 extended format: YYYY-MM-DD.                                                                                                                                    |
+| **links.self**                   | Guaranteed     | Stable link to district.                                                                                                                                                                                                                                               |
+| **portal\_url**                  | Guaranteed     | Indicates the URL of the district's Clever portal.                                                                                                                                                                                                                     |
+| **login\_methods**               | Guaranteed     | Indicates the type of login methods the district supports. Possible set of values: \["Clever Badges", "Canvas", "Clever Passwords", "Google", "LDAP", "SAML", "Other"\]                                                                                                |
+| **last\_sync**                   | Not Guaranteed | Populated as long as the district has synced data.                                                                                                                                                                                                                     |
+| **mdr\_number**                  | Not Guaranteed | MDR number (used for matching district records)                                                                                                                                                                                                                        |
+| **nces\_id**                     | Not Guaranteed | Federal NCES id for school.                                                                                                                                                                                                                                            |
+| **error**                        | Not Guaranteed | User-facing string describing a district error state. Typically useful only for district administrators. Should not be used to programmatically determine district status.                                                                                             |
+| **state**                        | Not Guaranteed | Possible values: \["running", "pending", "error", "paused", "success", ""\] Pending means there is an error that the district can fix; Error means there is an error that Clever can fix. Paused means that the district's sync is paused to reflect last year's data. |
+| **pause\_start**                 | Not Guaranteed | Indicates when the district's data gets paused to reflect last year's data in the SIS. ISO 8601 extended format: YYYY-MM-DD.                                                                                                                                           |
+| **pause\_end**                   | Not Guaranteed | Indicates when the district's data is unpaused to reflect data for the new school year. ISO 8601 extended format: YYYY-MM-DD.                                                                                                                                          |
+| **district\_contact.district**   | Not Guaranteed | Globally unique and stable id for school's district.                                                                                                                                                                                                                   |
+| **district\_contact.name.first** | Not Guaranteed | District administrator's first name.                                                                                                                                                                                                                                   |
+| **district\_contact.name.last**  | Not Guaranteed | District administrator's last name.                                                                                                                                                                                                                                    |
+| **district\_contact.email**      | Not Guaranteed | District administrator's email.                                                                                                                                                                                                                                        |
+| **district\_contact.title**      | Not Guaranteed | District administrator's title, if available.                                                                                                                                                                                                                          |
+| **district\_contact.id**         | Not Guaranteed | Globally unique and stable id for the district admin.                                                                                                                                                                                                                  |
+
+---
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+
+---
+  
+  
+### Example District Object
+
+JSON
+
+`"data":{
+	"district_contact":"string",//Object ID: Globally unique and stable ID for district
+	"error":"string",// String: Error state
+	"id":"string",// ObjectID: Globally unique and stable ID for district created by Clever
+	"last_sync":"string",
+	"launch_date":"string",
+	"login_methods":[
+		// List of supported login types
+	],
+	"mdr_number":"string",// String: MDR number
+	"name":"string",// String: Name provided by district
+	"nces_id":"string",//Federal NCES id for district
+	"pause_end":"string",// Date: When district's data will be unpaused
+	"pause_start":"string",// Date: When district's data will be paused
+	"portal_url":"string",//String: URL where users log in to Clever
+	"sis_type":"string",// String: Type of SIS district data originates from
+	"state":"running",// String: District's sync status
+}
+`
+
+---
+
+![484](/images/1fcd20e-v3_distict_image.png "v3_distict_image.png") 
+  
+  
+### Related objects
+
+The district object only has `name`, Clever `id`, `mdr_number`, and `nces_id` (if assigned) of the district in question. You'll need to use separate endpoints to access the district's data.
+
+* For example, since each token will give you access to only a single district, you should use `https://api.clever.com/v3.0/schools`.
+* Although courses, terms, and users with roles of contacts, school admins, and district admins are associated with a district, there is no relative link returned for these users on the district endpoint.
+
+Instead, you can use:
+
+* [/terms](/reference/getterms)
+* [/courses](/reference/getcourses)
+* [/users](/reference/getusers)

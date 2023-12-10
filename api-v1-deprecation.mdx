@@ -1,0 +1,51 @@
+---
+title: "API v1 Deprecation"
+description: As stated in [Clever's API Change Policy](https://support.clever.com/hc/s/articles/360050157812?language=en%5FUS), Clever will support no more than two major API versions at a time. With the release of API v3.0 early in 2021, we are officially beginning the deprecation and end of life process for API v1, which includes both v1.1 and v1.2\. The version will be deprecated by Back to School June 2022 and no longer accessible by December 2022
+---
+
+To make the transition from API v1 as smooth as possible, we've put together a list of considerations for integrations moving from API v1 to API v3\. If you have any questions or run into any difficulties, you can reach our Partner Engineering team at integrations@clever.com. 
+
+## Rostering Considerations
+
+### Multi-role Users
+
+One of the most significant features of API v3.0 is support for multi-role users - that is, users who may be one person working in both a teacher and staff role. The [Clever data model](/docs/data-model) for API v3.0 introduces a new User object, which takes the place of the individual user types, and the user-type specific information is now included in Role objects within the User object.
+
+The most important thing to know about this change is that **Clever user IDs for all users except students will be different in v3.0 than they were in any previous API versions**. Your upgrade plan should include a migration strategy for any users in your system that rely on the Clever ID as the unique identifier. There are two primary strategies that should work in most cases:
+
+#### The Bulk User Migration Tool
+
+The bulk user migration tool allows you to update all the Clever IDs in your system at once. The tool can be found in your app dashboard under _Settings > District Setup > Request API V3 Migration CSVs_. When you click _Request CSVs_, you'll be able to select the roles for which you need to map new IDs. The tool will generate a .zip file with one CSV per district, with a list of the users previous IDs next to their new multi-role user IDs.
+
+#### Migrating Using Legacy IDs
+
+For some use cases, it may be easier to update user IDs on demand. The new Role objects contain a `legacy_id` field, which is the Clever ID associated with that user in that role from the API versions before v3.0\. When you upgrade to using API v3.0, you can use these legacy IDs to match users in the sync with existing users in your system, making sure to store the new multi-role user ID for future identification.
+
+### Student Contacts
+
+Because the structure and presentation of student contacts in API v3.0 is a major departure from prior versions, we recommend you create contacts anew in your system. [See the documentation](/docs/student-contacts) for more details.
+
+## SSO Considerations
+
+### API v1 Endpoints
+
+With previous API versions, it was possible to roster using API v2 while still using the API v1 endpoints for token exchange and user identification. Now that API v1 is being deprecated, it is important to audit your SSO flow for any calls to Clever's API v1 endpoints so that these can be updated.
+
+<Warning>
+ 
+ **Check calls to the /me endpoint!**
+ 
+ Calls to the unversioned /me endpoint (`https://api.clever.com/me`) rely on behavior from the v1 API. This endpoint will be updated to return v2/me or v3/me responses, depending on your default API version. For optimal compatibility, make sure all calls to the /me endpoint have a version included, such as /v3.0/me.
+</Warning>
+
+### User ID Changes
+
+As mentioned in the earlier section on rostering considerations, the API v3 multi-role user model requires new Clever IDs for all users except for students. If your application does not use Clever ID as a primary identifier, you may not need to make any changes other than updating your Clever API endpoints to the latest version. 
+
+For those integrations that do use Clever ID as the primary identifier, you will need to make sure you are updating those IDs in your system to the latest version. If your users are rostered in Clever, you can use one of the methods mentioned above. For SSO-only integrations you will need to update those IDs on demand, using the `legacy_id` field to match with existing users.
+
+### Data Available at the /me Endpoint
+
+API v1 Secure Sync and Secure Sync Lite customers had access to a number of fields at the /me endpoint that were deprecated in later versions, including name and email. If those fields were used as part of the SSO flow, upgrading to v3.0 may require some changes. A call to the v3.0/me endpoint will provide a multi-role user ID, which can be used to make calls to the /users endpoint for additional information. 
+
+**Note that the unversioned /me endpoint will be deprecated with API v1, so no part of your SSO flow should make calls to it in the future, regardless of fields being used.**

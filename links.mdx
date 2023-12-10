@@ -1,0 +1,33 @@
+---
+title: "Links"
+description: "Relative links are one way to discover and navigate related data."
+---
+
+Let's examine the tail end of the JSON response to `/me` while using a student instant login token. Here's an example links node:
+
+JSON
+
+`"links":
+  [
+    { "rel":"self","uri":"/me" },
+    { "rel":"canonical","uri":"/v3.0/users/4fee004cca2e43cf2700028b" },
+    { "rel":"district","uri":"/v3.0/districts/4feecb637de9810111e000002" }
+  ]
+`
+
+Each relative link is structured:
+
+**`rel`** \- a string containing a keyword describing why you might be interested in the uri part  
+**`uri`** \- a string containing the path component of a Clever API request
+
+The rel keyword you're most interested in while handling this step is canonical. This is a fancy way of saying that the primary way to retrieve information about the object described in your API request is by requesting the path in the uri key.
+
+* To use that uri, you would attach the path component to `https://api.clever.com`.
+* In the above canonical example, that would be `https://api.clever.com/v3.0/users/4fee004cca2e43cf2700028b`.
+* This path will be accessible using the same instant login token or the appropriate district bearer token.
+
+> 🚧
+> 
+> Please Read
+> 
+> We strongly recommend following relative links to access related pieces of data. Constructing URLs by hand can be prone to errors and by following relative links, you'll be more resilient to access pattern changes in the Clever API.

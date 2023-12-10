@@ -1,0 +1,90 @@
+---
+title: "Updating your existing Clever iOS Integration"
+---
+
+If your app was Certified for iOS prior to December 2018, you will need to make changes to your integration in order to support the new flow.
+
+In order to provide backwards compatibility with older versions of the Clever iOS application, you’ll need the latest version of our SDK ([CocoaPods](http://cocoapods.org/pods/CleverSDK), [Github](https://github.com/Clever/ios-sdk))
+
+If you have any questions, please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#89e0e7fdeceefbe8fde0e6e7fac9eae5ecffecfba7eae6e4)!
+
+### Clever's Timeline
+
+**Today**, you can access our SDK.
+
+In **February 2019**, we released the new version of our Clever app. The app is backwards compatible, so this does not require any additional work on your side to support
+
+On **July 15th, 2019**, we switched from triggering the old flow to triggering the new flow when users initiate a login from the Clever Portal. To support the new flow, you will need to implement Universal Links and utilize our SDK. Some backwards compatibility will be supported. We’ve chosen July 15th in an effort to balance providing sufficient time to our application partners to make the required changes with the desire to deliver a better iOS experience to our shared customers as quickly as possible. 
+
+On **July 15th, 2020**, we will deprecate the old flow for all users.
+
+### What does the new flow look like?
+
+In the new flow, when a user logs in via Clever, your native iOS application opens and the user is logged in with no screen flashes.
+
+We don’t have a good video of this flow yet, but will add it here as soon as we can!
+
+### What changed in February 2019 (new iOS version)
+
+When we release the new version of Clever’s iOS app:
+
+* Users on 9 and 10 will not be able to install the new version of the app
+* Users on iOS 11+ will see no screen flashes when logging in to the Clever iOS app
+
+### What about iOS 9 and 10?
+
+The new version of Clever’s iOS app will not be supported for iOS 9 and 10 because the universal links experience was significantly worse than the existing flow in testing. While flashing between apps was reduced, users saw more prompts, which will lead to a higher percentage of students ending up in unexpected places due to incorrect prompt choice selection. Users whose devices are running iOS 9 or 10 will not be able to install the new version of the app on their devices.
+
+This is because we will not be building support for Universal Links in iOS 9 and 10 and users will not be able to install the new version of the app pre iOS11 versions. 
+
+In testing, this flow reduced flashing between apps, but increased the number of user-facing prompts, which will lead to higher rates of students ending up in unexpected places due to incorrect prompt selection.
+
+### What changed in July 2019
+
+On July 15th, 2019, we changed our iOS behavior in the portal to support Universal Links. This flow is incompatible with the old flow, and we want to move users over to the new iOS flow as soon as possible as it has a substantially better user experience. 
+
+### What happens if you have implemented the new flow on July 15th?
+
+#### For iOS 9 and 10 users, or for users who have not upgraded the Clever iOS app
+
+If a user starts in Safari, they’ll see the new user experience!
+
+If the user clicks on a LIWC button in your updated application, they will see the existing flow. 
+
+For users logging in from the old Clever iOS app, we’re not sure about the exact behavior on this, since it’s difficult to test, but what we do know is that the experience will definitely be broken in some way. The most likely option is that clicking the app icon will do nothing.
+
+#### For iOS 11+ users who have the old version of the Clever App
+
+Users will see the existing user experience.
+
+#### For iOS 11+ users who have the new version of the Clever App
+
+Users logging in from the new Clever iOS app, a LIWC button in your updated app, or Safari will see your native app open and log them in without flashing! If your application is not installed, Safari will open your primary redirect URL.
+
+### What happens if you implement the new flow early?
+
+Users will see the existing flow until July 15th 2019.
+
+### What happens if you haven’t implemented the new flow by July 15th?
+
+#### For iOS 9 and 10 users, or for users who have not upgraded the Clever iOS app
+
+For users logging in from the old Clever iOS app, we’re not sure about the exact behavior on this, since it’s difficult to test, but what we do know is that the experience will definitely be broken in some way. The most likely option is that clicking the app icon will do nothing.
+
+Users logging in from a LIWC button will see the existing user experience.
+
+#### For iOS 11+ users who have the old version of the Clever App
+
+Users logging in from the old Clever iOS app j or through a LIWC button will see the existing user experience.
+
+#### For iOS 11+ users who have the new version of the Clever App
+
+Users logging in from the Clever iOS app or through a LIWC button will be taken to your primary redirect URL in Safari. Users will not be able to access your native application if accessing Clever through a browser.
+
+### What’s changing in July 2020
+
+In July 2020, we will deprecate the existing flow. This means that the custom redirect scheme in your iOS platform will no longer work for logins. 
+
+### Confused about what's changing? Here are some charts
+
+![870](/images/aa3094e-Capture.PNG "Capture.PNG") ![872](/images/9238a32-Capture.PNG "Capture.PNG") ![876](/images/4daa1d9-Capture.PNG "Capture.PNG") ![875](/images/b9cccb6-Capture.PNG "Capture.PNG")

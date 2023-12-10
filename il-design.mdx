@@ -1,0 +1,170 @@
+---
+title: "Designing District SSO Integrations"
+---
+
+Here we've outlined important design decisions to make when building your Instant Login integration. If you have any questions, reach out to [\[email protected\]](/cdn-cgi/l/email-protection#bcc8d9dfd491cfc9ccccd3cec8fcdfd0d9cad9ce92dfd3d1).
+
+### General best practices:
+
+* Don't prevent users with missing data from logging in
+* Don't exchange code values multiple times
+* Your application must allow users to log in when arriving from the Clever Portal or an Instant Login Link
+* Your application's first defined redirect URI must handle logins for all districts without requiring additional parameters or subdomains. Use a centralized redirect URI to capture users, then send users to specialized domains and URLs as necessary.
+* You must use HTTPS on your production user-facing redirect URI. The rest of your application should use HTTPS also.
+* Your application should include a Log in with Clever button
+* You should support district and school administrator login. If your application does not have a role for these user types, treat them like teachers.
+
+### Processing authorization codes
+
+Your application may receive the same `code` value multiple times. When Clever sends a user to a redirect URI, Clever loses control of what the browser and user may do with that redirect URI. The user or browser may visit the URL with the authorization code intact -- a single time or twice or a dozen times. This occurrence might be triggered by automatic browser behavior (like automatic page refreshing), or directly by the user utilizing their back button or a bookmarked link.
+
+The web browser or user is typically unaware of the significance of the parameters associated with the request.
+
+In OAuth 2.0, client applications are expected to ensure that they do not attempt to exchange an authorization code multiple times. (["The client MUST NOT use the authorization code more than once."](https://tools.ietf.org/html/rfc6749#section-4.1.2))
+
+So, what do you do when you've already exchanged an authorization code that a user brings with them to your redirect URI?
+
+Instead of sending another request to `POST /oauth/tokens` with the repeat authorization, keep a history of recent `code` exchanges.
+
+Your applications could recall the authorization codes it has exchanged and for which user a code was exchanged. With this knowledge, application logic can be developed to prevent a client application from attempting to exchange a code value multiple times. From there, you have several options:
+
+### 1\. Resume the current user's session for the current user
+
+One approach would be to maintain a short-lived mapping (in memcache, perhaps) of successfully exchanged code values and the user associated with the request.
+
+If a valid session _for that same user_ is still active in the browser and they _have not_ initiated log out, your application could resume the already existing session. You would not attempt to exchange the recently used code value for a bearer token.
+
+You may want to present the user with a "you are already signed in" message.
+
+### 2\. Ask the user to log in with Clever again
+
+Another approach would be to simply record a list of recently exchanged code values, and identify attempts to re-use authorization codes.
+
+Instead of resuming a user session, terminate any existing browser session, and direct the user to attempt signing in to the application again with a [Log in with Clever link](/docs/identity-api#section-liwc-button-assets).
+
+When the user clicks on the button, their Clever launchpad session will be resumed and they will be redirected to your application again, this time with a fresh code value.
+
+### Protecting against Cross-Site Request Forgery (CSRF)
+
+CSRF is a vulnerability that occurs when an attacker can cause a victim to perform an unintended action on a web resource. For more information, see [Keeping Instant Login Secure](/docs/il-security).
+
+The best way to protect against CSRF vulnerabilities in OAuth 2 is to use a `state` parameter to verify that the user intends to make the login request to your app. The `state` parameter is a value managed by your app. To protect against CSRF, you must first generate the state parameter and associate it with the user - via their session, for instance - and then send it to Clever in the /oauth/authorize link. Clever will redirect the user to your redirect URI with a `code` and the `state` as provided. You should verify this `state` matches what is in the user’s session before exchanging the `code` for an access token.
+
+### Protecting Clever-initiated logins
+
+By default, Clever-initiated login links (such as those in the portal) do not use the `state` parameter. It isn’t feasible to include a `state` parameter in these types of links, since your application must generate this value and associate it with the user using a channel protected by the same-origin policy. However, you may choose to “re-redirect” back to Clever, while adding the `state` parameter with these links.
+
+Using this approach, you would simply ignore the code parameter to your redirect URI unless the `state` parameter is also present. If it isn’t, you would set the `state` parameter and redirect back to /oauth/authorize. The final redirect back to your app would contain the `state` parameter, which you could verify before initiating the code exchange.
+
+### Protecting Application-initiated logins
+
+If they are hosted on your domain, you can simply generate and append a `state` parameter to the Log in with Clever links. There is no extra redirect necessary. However, if the Log in with Clever links are not hosted on your domain, you will need to "re-redirect" similar to the portal links described above, since you will by default get a `code` with no `state`.
+
+### Other options
+
+We recommend redirecting users to another page of your application after sign in, so that redirect URIs and existing `code` values are not bookmarked or linger in a user's browser bar and history.
+
+Finally, some applications may want to use Javascript and HTML to modify the browser history to no longer include the redirect URI with code value, though this approach has varying browser support.
+
+### What to do if you've already re-exchanged a code
+
+If you do end up exchanging an already used authorization code and receive a HTTP 400 with `"error": "invalid_grant"` and `"error_description": "invalid code"`, it is pretty likely the code was already exchanged.
+
+We recommend redirecting the user to their Clever Portal ([https://clever.com/login](https://clever.com/login)) or to a Log in with Clever link. This way, the user will never be "stuck" on a failed OAuth screen. When the user attempts to log back in, Clever will also send the user back to your redirect URI with a fresh code value.
+
+### Matching accounts on login
+
+When you complete the OAuth process, you're left with a token that grants access to information about the user. How do you go from there to determining which record should be accessed?
+
+The best identifier for users is the Clever `id` \- this is globally unique and the most stable ID we offer.  
+If you already know the user's Clever `id`, then you should use that to identify the account.
+
+If the Clever ID doesn't yet exist in your system, you have a few options:
+
+### Matching algorithms
+
+After you've hit the /me endpoint, you can check other fields on the user record to see if there's an account that already exists - if you are a Secure Sync customer, you can compare against other fields like sis_id, student_/teacher\_number, email address, etc. If you are using Instant Login only, you will have access to the user's first name, last name, and email address. If you find a match, associate the Clever ID with the account you find for future logins.
+
+### Users claim existing accounts
+
+#### Querying on first login
+
+When users log in with Instant Login for the first time, display a page that prompts them to log in to an existing account if they have one. When a user logs in with valid credentials, tie their Clever ID to the existing account.
+
+#### "Connect Clever Account" option
+
+When a user is logged in to their account, allow them the option to "Connect a Clever account" - essentially, you'll use a Log in with Clever button. When the user logs in through Clever, grab the Clever ID and associate it with the existing account.
+
+### Provisioning on Demand
+
+If your application is Instant Login only, you must have a method of provisioning accounts on demand - you should create an account for any users if you are unable to find a matching account. Use the relevant information from // to fill any required fields and make sure you store user's Clever ID as a key identifier for their next login.
+
+### Binary vs Hybrid Logins
+
+Many applications already have other methods of access (e.g. app-specific credentials, Google auth, etc). You do not have to make Instant Login the only login method for your application - we can co-exist with your existing system. We refer to any system where Instant Login is not the only login method as a hybrid login system.
+
+Some applications do choose to use IL exclusively for their districts. We refer to this as a binary login system.
+
+### Provisioning credentials for hybrid logins
+
+Most districts do not store student and teacher usernames and passwords in their SIS, and thus Clever does not recommend relying on the Clever data feed for user credentials.
+
+Districts typically fall into one of two categories regarding their preferences for secondary credentials:
+
+* No strong preference, happy to have assigned credentials that they can share with students and teachers (Assign Credentials)
+* Have existing usernames in the SIS and want to pass them through Clever
+
+### Assigning credentials
+
+Unless you're solely using Clever Instant Login to sign users in, Clever recommends that you assign secondary credentials for your students and teachers with the following strategies:
+
+* Students
+* Username: We recommend giving schools a few choices - possibly differentiated by grade level (ex. 1st graders need simpler options than 10th graders). Some popular options include `email`, FLast, FirstL, `student_number`
+* Passwords: If you need passwords, Clever recommends generating your own passwords using sensible defaults (e.g. a default word such as "banana" or the student's ID) and requiring the student or teacher to change the password afterwards.
+* Teachers and administrators
+* Username: We strongly recommend using `email` address as a teacher or admin's username.
+* Password: We recommend inviting teachers to their accounts via email and letting them set own password on first login.
+* We recommend allowing teachers and administrators to reset teacher passwords.
+
+### Usernames from Clever
+
+Districts can choose to add usernames to the data in Clever, though in order for us to be able to sync this information, it must be stored in the SIS (or provided in the SFTP files). In our API, this is the `credentials.district_username` field.
+
+You might choose to let them set usernames initially via the Clever feed, but then ignore any updates to usernames. This will allow you to preserve credentials even if a district omits them from the feed.
+
+> 🚧
+> 
+> The username field in Clever is shared across applications. If a district's usernames do not meet your requirements, they may not be able to change them. For this reason, you should have a [backup](https://cybernews.com/resources/web-hosting-glossary/#backup) method of setting usernames.
+
+Clever does not guarantee uniqueness of the district\_username field provided through the API. The API passes through the values that the district provides. Username conflicts should be identified in your application, and the district must resolve conflicts by changing the information that they're sending through Clever.
+
+Clever recommends that you do not require unique usernames across your entire product. Because districts often use usernames such as firstinitiallastname, it is common to find conflicting usernames in different districts. Requiring uniqueness across the product will lead to frustration for districts that have existing username conventions that collide with those of other districts. Districts should be able to comply with providing usernames that are unique within a school or within a district.
+
+### Error handling
+
+If an error happens during login, you should display a human-friendly error message and encourage the user to log in again.
+
+### Logout
+
+When a user logs out of your application, the window should close or they should be taken to your login screen. Ideally, your login screen should have a Log in with Clever button.
+
+You **must not** attempt to log the user out of Clever.
+
+### Users with multiple roles
+
+It's possible for a teacher to also be a school or district administrator in Clever, but these accounts all have distinct Clever IDs. When logging in through Instant Login, we ask the user to choose which account they are logging in to. On your side, you can handle this one of two ways:
+
+* Create separate accounts for each user type - users can only access admin functionality when logged in as an administrator account
+* Create one user with elevated permissions - you can often merge these accounts based on email address. The user you create should then be associated with multiple Clever IDs so that the user gets the same account regardless of which user type they selected when they logged in to Clever.
+
+### Instant Login on Mobile Devices
+
+Instant Login works in browsers on any device. In the browser, we will redirect the user to your primary redirect URL exactly as we do on a non-mobile device.
+
+We've also created our own iOS app, which allows users to log in to Clever and your app using any identity provider, including Clever Badges. For more information, see [Instant Login on iOS](/docs/ios).
+
+### Instant Login with Multi-Tenant Setups
+
+If you have a separate subdomain for each district or school, you can use a Login with Clever link to specify which redirect URL to send a user to when they log in using that button. However, if a user logs in through the Clever Portal or an Instant Login link, they'll be sent to your primary redirect URL. In order for users to successfully log in through every login path, your primary redirect URL needs to be prepared to log the user in to the correct site after the OAuth flow is complete - we call this an 'OAuth handler.'
+
+Each user has two fields that will make this much easier: `id` and `district`. If your tenants are segmented by districts, you can simply find which subdomain is associated with that district's ID. Alternatively, you can look up the user's ID in your database and see which tenant they are associated with.

@@ -1,0 +1,42 @@
+---
+title: "Instant Login - Native Apps"
+---
+
+> 🚧
+> 
+> Note: This flow is only supported in the current version of the Clever iOS application
+> 
+> In order to provide backwards compatibility with old versions of our iOS application, you must use our SDK ([CocoaPods](http://cocoapods.org/pods/CleverSDK), [Github](https://github.com/Clever/ios-sdk)) if you plan to implement this flow before _July 15_
+
+> 👍
+> 
+> This is new!
+> 
+> In order to provide the best possible experience on iOS, we are deprecating the original iOS flow (pre-January 2019) and replacing it with a universal links-based approach. If you integrated with our original iOS flow, see [Updating your existing Clever iOS Integration](/docs/deprecating-ios-platform)
+
+If you have a native app, you should use Universal Links to log users in to your application through Clever Instant Login. We've outlined the steps below! 
+
+### Unsupported iOS Versions
+
+The new Clever app is not available on iOS 9 or 10\. Many of our district partners have indicated that they are moving away from iOS 9/10, or have upgraded off of 9/10 entirely already, and the universal link capabilities underlying the new experience are only available on iOS 11+. Devices running iOS 9 or 10 will continue to work with the existing Clever app until it is deprecated on July 15 of this year (2019). Logins originating in partner applications with the old flow will continue to work until that flow is deprecated (July 15, 2020). 
+
+### Supporting Universal Links
+
+Universal Links allow you to have your native app open when a user attempts to navigate to one of your URLs on a mobile device. If your app isn’t installed, users will be directed to your URL in the browser as normal.
+
+Specifically this process involves registering a domain within your mobile app entitlements and upload a json verification file to that domain to confirm your app’s registration.
+
+For instructions on how to implement this in your native mobile application, please see the documentation below:
+
+* [iOS](https://developer.apple.com/ios/universal-links/)
+* [Android](https://developer.android.com/training/app-links/)
+
+### Handling Logins with Universal Links
+
+If you have a native iOS application, you can use our SDK ([CocoaPods](http://cocoapods.org/pods/CleverSDK), [Github](https://github.com/Clever/ios-sdk)) to log users in to your application through Clever Instant Login. 
+
+1. As in non-mobile logins, Clever will redirect the user to your primary redirect URL and include the usual parameters.
+2. Since your native app is the primary handler of your URL, it will receive the code.
+3. Your native app should send the code to your server via an endpoint that you build (or may already have built). In practice this endpoint would behave similarly to an endpoint to verify/redeem a user’s username/password during a traditional login flow.
+4. Upon receiving the code, your server should exchange the code for a token and determine which account to log in to.
+5. Your server should then send data to your native app to initiate a session in the app with the user logged in.

@@ -1,0 +1,39 @@
+---
+title: "Extension Fields"
+---
+
+### What are extension fields?
+
+With the release of v2.1, districts will be able to sync additional data fields to Clever without us needing to add them to our schema - which requires us to release a new version of the API. Instead, these fields will appear on the record as an extension field.
+
+### Which records can have extension fields?
+
+Extension fields are currently available for:
+
+* Schools
+* Sections
+* Teachers
+* Students
+* Staff
+
+We plan to add support for extension fields for School Administrators by Back to School 2019-20.
+
+### Are fields normalized?
+
+Because fields are created and populated by the district outside of our schema, we cannot normalize the data within the field. Additionally, there are no constraints on what districts can use as a field name. 
+
+### Accessing extension fields
+
+### Setting your application up to receive extension fields
+
+In order to receive extension fields, you'll need to add the fields to the list of fields you will accept in your Data Access settings (Settings > Data Access). You'll need to mark the `ext` field as optional for any record types you'll support.
+
+![593](/images/00640d3-data_access.PNG "data access.PNG")
+
+Settings > Data Access
+
+For more information on Data Access and how to use it, check out our [guide to field-level sharing](https://support.clever.com/hc/en-us/articles/360000216886).
+
+### How districts add and share extension fields
+
+If you're interested in seeing the district experience or testing extension fields using a sandbox, [check out these instructions](https://support.clever.com/hc/en-us/articles/360024370912).

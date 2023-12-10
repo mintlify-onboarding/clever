@@ -1,0 +1,34 @@
+---
+title: "Terms"
+description: "Terms are an optional data type - these are only created if a district sends us term information."
+---
+
+| Field           | Guaranteed?    | Description                                                                                                           |
+| --------------- | -------------- | --------------------------------------------------------------------------------------------------------------------- |
+| **id**          | Guaranteed     | Globally unique and stable id for term created by Clever. Used in API calls (ex /v3.0/terms/4fe3ff51dfa547000000041f) |
+| **district**    | Guaranteed     | Globally unique and stable id for term's district.                                                                    |
+| **name**        | Not Guaranteed | Name provided by district.                                                                                            |
+| **start\_date** | Not Guaranteed | Start date for the term. ISO 8601 extended format: YYYY-MM-DD.                                                        |
+| **end\_date**   | Not Guaranteed | End date for the term. ISO 8601 extended format: YYYY-MM-DD.                                                          |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+
+JSON
+
+`"data": {
+   "id": "string", // ObjectID: Globally unique and stable ID for the term
+   "district": "string", // ObjectID: Globally unique and stable ID for the term's district
+   "name": "string", // String: Name provided by district
+   "start_date": "string", // Date: Term's start date
+   "end_date": "string" // Date: Term's end date
+ }
+`
+
+![580](/images/569010b-terms_api.jpeg "terms_api.jpeg") 
+  
+  
+### Related Objects
+
+To retrieve a list of the section objects associated with a term, use [/terms/{id}/sections](/reference/getsectionsforterm).

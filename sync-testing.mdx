@@ -1,0 +1,53 @@
+---
+title: "Testing Your Sync"
+---
+
+To test your integration with Clever, you have several options for testing with sandbox districts. You can test your sync against three precreated data sets - a default sandbox district, a larger Clever USD, and a Certification ISD - or create your own custom sandbox district.
+
+### Testing with a default sandbox district
+
+When you sign up for a dev app, a sandbox district is automatically created and linked to your dev app. The naming convention is {dev app name} Sandbox, and you can find it listed as a district in your dashboard on the "Home" tab.
+
+The default sandbox district has:
+
+* 5 schools
+* 33 sections
+* 41 users  
+   * 7 teachers  
+   * 14 students  
+   * 14 student contacts  
+   * 6 school admins
+
+Each dev app is given its own sandbox dataset so the instance is unique to your app. If you'd like to modify any data in this sandbox district, please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#a0c9ced4c5c7d2c1d4c9cfced3e0c3ccc5d6c5d28ec3cfcd) with an email address not already registered with Clever (i.e. not the same one as you used to create your dev app) requesting that we add you as an admin to your sandbox district.
+
+### Testing with Clever USD
+
+You can also download CSVs for a larger data set to populate your default sandbox district [here](https://assets.clever.com/devdocs/cleverusd.zip). This district includes:
+
+* 239 schools
+* 25,843 or more sections
+* 460,000 or more enrollments
+* 65,503 or more users  
+   * 8,412 or more teachers  
+   * 56,635 or more students  
+   * 6 staff
+
+### Testing with Certification ISD
+
+Another option is you can connect to a centralized dataset that:
+
+1. Contains known edge cases and "unclean data" you can use to verify that your integration can handle these correctly. This allows you to test the worst of the worst district data. To facilitate the generation of these edge cases, this dataset **automatically rotates between 3 days of data every 3 days**.
+
+The full list of edge cases and the users that fulfill each one can be found in this spreadsheet. [Certification ISD Edge Cases.](https://docs.google.com/spreadsheets/d/1ETku1FnlFN1fNADSpziASnnJIHJMFaUmPWdZzQ06xko/pubhtml)
+
+The raw data can be found here: [Certification ISD](https://assets.clever.com/devdocs/CertificationISD.zip).
+
+1. Allows you to test [Events](/reference/events) syncs. If you are looking to test events, one option is you can leverage the automatic rotating nature of this sandbox to process the event stream.
+
+If you'd like to do this, please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#4b22253f2e2c392a3f222425380b28272e3d2e3965282426) with the name of your dev app and a request to connect to the Certification ISD sandbox district.
+
+Note that, unlike the auto-created sandboxes, this sandbox is centrally managed by Clever and therefore read-only; you won't be able to make any changes to this sandbox.
+
+### Creating your own custom sandbox district
+
+To perform testing with a new custom sandbox where you upload your own data, check out our [guide to creating your own custom sandbox district](/docs/custom-sandbox-districts).

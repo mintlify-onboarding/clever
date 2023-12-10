@@ -1,0 +1,36 @@
+---
+title: "Testing Logins"
+---
+
+### Before you start testing...
+
+* Have you implemented [Instant Login with OAuth 2.0?](/docs/identity-api)?
+* Have you configured your redirect URLs?
+
+### Testing Individual Users
+
+### Using sandbox user credentials
+
+If you're using Clever's default sandbox district (auto-connected with your application):
+
+1. Initiate a login. You can do this one of three ways:
+* Go to the district overview in your Clever dashboard. Copy the Portal URL, and after logging in, click your application's icon.
+* Go to the district overview in your Clever dashboard. Copy the Instant Login link and log in there.
+* Use a Log in with Clever button.
+1. All sandboxes should be set up so the default credentials are:
+* Student: username and password are the student's `student_number` (e.g., 243615677)
+* Teacher: username and password are the teacher's `teacher_number` (e.g., 215041)
+* School admin: username and password are the school admin's `staff_id` (e.g., 12342)
+* District admins may only be tested in [custom sandbox districts](/docs/custom-sandbox-districts).
+
+You can download the default district CSVs to test other users [here](https://assets.clever.com/devdocs/default%5Fsandbox%5Fdata.zip).
+
+If you're using a [custom sandbox](/docs/custom-sandbox-districts) district instead, you must configure and review your Single Sign On user credentials settings.
+
+### Secure Sync only: SSO debugging tools
+
+In the Data Browser, open up the Detail View for a user where there is a link to log in as the user. This link sends a user-authenticated request to your app, so you can see what the user sees when they access your app through Clever.
+
+This works for all user types that your application supports: students, teachers, school and district admins.
+
+![1290](/images/4e40e39-debugging-instant-login.png "debugging-instant-login.png")

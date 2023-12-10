@@ -1,0 +1,38 @@
+---
+title: "Courses"
+description: "Courses are an optional data type - courses are only created if a district chooses to sync course information to Clever."
+---
+
+| Field              | Guaranteed?    | Description                                                                                                               |
+| ------------------ | -------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **id**             | Guaranteed     | Globally unique and stable id for course created by Clever. Used in API calls (ex /v3.0/courses/4fe3ff51dfa547000000041f) |
+| **district**       | Guaranteed     | Globally unique and stable id for course's district.                                                                      |
+| **links.district** | Guaranteed     | Gets the district for a course.                                                                                           |
+| **links.sections** | Guaranteed     | Gets all sections for a course.                                                                                           |
+| **links.self**     | Guaranteed     | Stable link to course.                                                                                                    |
+| **name**           | Not Guaranteed | Name provided by district.                                                                                                |
+| **number**         | Not Guaranteed | Course number provided by district.                                                                                       |
+
+> 📘
+> 
+> **Fields are not returned in a specific order so please ensure that your app does not rely on the order.**
+  
+  
+### Courses Object Example
+
+JSON
+
+`"data": {
+    "id": "string", // ObjectID: Globally unique and stable ID for the course
+    "district": "string", // ObjectID: Globally unique and stable ID for the course's district
+    "name": "string", // String: name provided by district
+    "number": "string" // String: course number provided by district
+}
+`
+
+![580](/images/f54c614-course_api_doc.jpeg "course_api_doc.jpeg") 
+  
+  
+### Related objects
+
+To retrieve a list of the section objects associated with a course, use [/courses/{id}/sections](/reference/getsectionsforcourse).

@@ -1,0 +1,239 @@
+---
+title: "Onboarding Districts"
+---
+
+When a school or district decides to provision and maintain records in your application through Clever, how do you get them set up and syncing? Here we've outlined important design decisions to make and best practices to consider when building your Instant Login integration. If you have any questions, reach out to [\[email protected\]](/cdn-cgi/l/email-protection#bfd6d1cbdad8cddecbd6d0d1ccffdcd3dac9dacd91dcd0d2).
+
+### How manual is your onboarding process?
+
+Before designing your onboarding process with Clever, consider your current onboarding processes: how much data (or metadata) is manually entered or edited by your team members or by customers? How much of that is required?
+
+Our guidance here is shaped by seven years of working with customers of all sizes and product areas, and there is no one size fits all approach. However, we will present options that we've seen work (and caveats where they haven't) that you can use to decide what works best for you.
+
+### Obtaining district-app tokens
+
+Every time a district authorizes your application, a token is created that stores the details of this authorization. A token is a string of characters: `7f76343d50b9e956138169e8cbb4630bb887b18`
+
+In order to automatically sync data for the district, you need to store either the district's token or the Clever ID. Here's how to access the tokens shared with your application.
+
+### Manual Access
+
+After logging in to Clever, when you click on a district you can choose to view or copy the token in the district's Overview.
+
+![](/images/77128e2-district_info.PNG "district info.PNG")
+
+### Querying for tokens
+
+You can query the [GET https://clever.com/oauth/tokens endpoint](/v2.1/reference) \- this endpoint returns a list of every token granted to your application. For programmatic import of district tokens, we recommend this approach. 
+
+You can add a parameter with `GET https://clever.com/oauth/tokens?district=<id>` to retrieve a district-specific token. 
+
+### Associating records with district-app tokens
+
+### Storing district IDs
+
+Clever gives every record a globally-unique ID, including the district. So, by tying your top-level object to the Clever district ID, you can identify which token on /oauth/tokens you need in order to sync the data.
+
+This allows your system to continue syncing automatically even if the token string for a district changes, as /oauth/tokens will always return the active token.
+
+### Storing tokens
+
+If you're grabbing tokens manually - or prefer not to refresh tokens every time you need to sync data for a district, you can absolutely store the district-app token (Note: storing IL bearer tokens is not recommended). If your only method of updating tokens is manual, please note this in the certification process - if a token is compromised, our team will reach out to coordinate rotating the token so we can minimize customer impact.
+
+### Self-serve onboarding
+
+Here are a few strategies we've seen applications use for matching Clever districts with database records that minimize work for your internal teams. 
+
+### Matching on MDR Number
+
+Clever supports district and school MDR numbers, and you can find this value in the /v2.1/districts and /v2.1/districts/ responses. If you store MDR numbers in your database, you can use this field to match Clever districts and internal organizations.
+
+* **Pros**  
+   * Fields are automatically populated by Clever  
+   * Clever has the ability to update these as necessary
+* **Cons**  
+   * Not available for all districts  
+   * Must pay to access the MDR database
+* **Development Tasks**  
+   * Adding MDR number to your organizations  
+   * Comparing database ID to district.mdr\_number
+* **Edge Cases**  
+   * Missing MDR numbers  
+   * Clever districts that are not actually districts (ie single-school signups), and so will not have MDR numbers
+
+### Matching using Clever Instant Login
+
+When a [user logs in to your application through Clever](/docs/identity-api) , we do provide district ID on the `/me` response. You can grab information from the user to match them to an organization in your database.
+
+* **Pros**  
+   * Any shared user at the district can log in, providing district ID
+* **Cons**  
+   * Users will attempt to log in to your application before data is ready
+* **Development Tasks**  
+   * Build matching algorithm to match user’s district ID with their organization within your app
+* **Edge Cases**  
+   * What happens if multiple users try to follow this flow to associate district ID?
+
+### Using a Log in with Clever Button
+
+You can use the optional state parameter on a LIWC link to link a district to their organization. Here’s the flow we’ve seen other apps use:
+
+1. Embed the LIWC link in the admin dashboard or send it to the admin in an email. The format of the link will be `https://clever.com/oauth/authorize?client_id=<client id>&redirect_uri=<redirect uri>&response=code&state=<state input>`
+* The redirect URI can be separate from your primary redirect URI
+* You should still be using the state parameter to [prevent CSRF](/docs/il-security)
+1. Once the user logs in, we'll send them to the specified redirect URI with the code and the state parameter, with the state input exactly as provided
+2. Once the OAuth flow is complete, you can use the district ID from the user and the state parameter to determine which organization the user is associated with.
+* **Pros**  
+   * Any user can follow this link to provide district id, but you can better control which users have access to this flow
+* **Cons**  
+   * Users will attempt to log in to your application before data is ready - you may need to launch and then unlaunch the connection
+* **Development Tasks**  
+   * Have state parameter processing and/or separate redirect URI for matching
+* **Edge Cases**  
+   * What happens if multiple users try to follow this flow to associate district ID?
+
+### Admins Select District/Organization from List
+
+In this flow, an admin (either internal or external) selects district from a list of unmatched districts shared with the app. You can also do some name matching to try and get higher-likelihood matches to the top of the list, or add in a search feature
+
+* **Pros**  
+   * Can be fully self-serve or can simplify work for your internal team
+* **Cons**  
+   * Still requires manual input  
+   * Edge cases around picking the right account
+* **Development Tasks**  
+   * Build filtering mechanism / UI
+* **Edge Cases**  
+   * District name is not always unique  
+   * Possibility of mismatching, need to be able to correct this  
+   * The admin user in your database may not be same as the Clever district administrator
+
+### Email Matching
+
+Take a look at the data that’s being synced and compare the email addresses/domains to find the organization that contains those users
+
+* **Pros**  
+   * Can be fully automated
+* **Cons**  
+   * Lots of potential issues
+* **Development Tasks**  
+   * Matching data from API with organization data in database
+* **Edge Cases**  
+   * Districts with multiple Clever accounts
+
+### Matching records
+
+When converting existing customers to a Clever sync, it will likely be necessary to match their existing data with data coming through Clever. You should implement a strategy to manually match these records, but you can also use Clever's Matchmaker tool to bootstrap your matching for students, teachers, sections, and schools.
+
+> 🚧
+> 
+> It's unlikely that any matching approach will have a 100% success rate. Even if all data is "clean," there are likely new records or expired records that will not match. As a result, it's critical for a matching process to allow for a review of failed and questionable matches.
+
+### Using a matching algorithm
+
+Clever recommends identifying fields in your existing data set that are unique and present in the Clever data feed. You can match on these fields, and then store Clever IDs so that future updates will be tied to the newly matched resources.
+
+#### Schools
+
+Many developers have found it relatively easy to match schools by hand (either by the developer or by the school admin) since school matching only has to be completed once. Alternatively, we provide MDR Number and NCES ID
+
+Many schools in Clever have NCES IDs (either loaded from the SIS, or pulled by Clever on developer request) which can be helpful for matching schools. However Clever doesn't have 100% coverage, and some schools don't have populated nces\_id.
+
+Clever now has robust coverage for mdr\_number fields in U.S. school records. If you notice any discrepancies or gaps in our coverage, please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#345d5a4051534655405d5b5a47745758514251461a575b59).
+
+#### Users
+
+##### Students
+
+To match students in Clever with existing students in your product, developers have had success matching on the following fields, in order of most successful to least:
+
+1. primary ID numbers ( `sis_id`, `student_number`)
+2. secondary ID numbers (`state_id`)
+3. birthdays (`dob`)
+4. `email` address
+5. `name`
+
+##### Teachers
+
+To match teachers in Clever with existing teachers in your product, developers have had success matching on the following fields, in order of most successful to least:
+
+1. `email` address
+2. primary ID numbers ( `sis_id`, `teacher_number`)
+3. secondary ID numbers (`state_id`)
+4. `name`
+
+##### Staff
+
+To match teachers in Clever with existing teachers in your product, developers have had success matching on the following fields, in order of most successful to least:
+
+1. `email` address
+2. `staff_id`
+3. `name`
+
+##### Multi-role users
+
+Clever recommends creating one account for any user with multiple roles. If your application has separate accounts for users that are both teacher and staff, we recommend associating each account with one Clever ID to allow the user the ability to toggle between experiences with one login or select their intended role upon login. To consolidate accounts into one, developers can iterate through each `role` response on the user object and match following the respective fields listed above. If the user matches multiple accounts in your system, associate each with the one provided Clever ID.
+
+If you must create separate accounts for each user type, developers can add complete matching by role by adding the `?role` parameter to the user endpoint, and using the respective fields listed above. Note: separate accounts will have one Clever ID for updates moving forward. 
+
+#### Sections
+
+Clever does not recommend matching existing sections to sections in Clever, as unique section identifiers rarely exist in existing data sets. If matching sections is essential to your application, matching on school and teacher will make the process simpler.
+
+> 🚧
+> 
+> Clever does not recommend a fully automated match by name because it's very common for more than 1 student in a district (or even more than 1 student in a school) to have the same name.
+
+### Matchmaker
+
+You can access Matchmaker by logging in to your Clever Dashboard and clicking 'Matchmaker' in the left menu bar. Matchmaker evaluates district data you already have and correlates it to data Clever has, relieving you of the burden of manually matching records.
+
+> 📘
+> 
+> Matchmaker is currently only enabled for apps that support Secure Sync, since it requires access to full district records.
+
+#### How it works
+
+1. A district authorizes your application through Clever and shares some records
+2. You upload a CSV with your existing student, teacher, admin, school, or section/enrollment records
+3. Matchmaker matches the records you uploaded with the records shared with your application in Clever
+4. Clever emails you a CSV with a list of matched records and a list of unmatched records
+
+> 🚧
+> 
+> Our robots aren't perfect :(
+> 
+> Matchmaker does its best to match all of your records, but sometimes it just can't match every single one perfectly. We always recommend checking over your Matchmaker results before processing them and making manual matches when necessary.
+> 
+> As a side note, Matchmaker does not play nicely with our sample data sets as there will often be many users who have the same name, which increases the chances of false negatives in the data.
+
+#### Input CSV guidelines
+
+When creating an input CSV to upload to Matchmaker, follow the guidelines below to help Matchmaker produce accurate matches. Use [this example CSV](https://assets.clever.com/example-data/matchmaker%5Finput%5Fexample.csv) as a guide, but please note: you can use any fields in your CSV as long as your file meets the following requirements:
+
+* It must be a valid CSV file (in accordance with RFC 4180). Specifically, that means:
+* Every row should have the same number of columns, separated by commas.
+* Any values with commas in them should be surrounded by a matching set of quotes.
+* It must contain a column header for each field.
+* It should contain as many fields as possible. The more information you provide about each record, the better chance it will have of being matched.
+* It must contain a unique internal identifier for each record. You should use this identifier to associate matched records with the original accounts in your application.
+* It should contain exactly one record for each user. If a user has multiple accounts in your application, please choose one to match with Clever. Duplicate records will not be matched.
+
+#### Output CSV format
+
+Matchmaker outputs a CSV containing all of the fields from your input CSV including additional identifying fields from Clever.
+
+* Column headers for your input fields will begin with `app`. (e.g. `app.email`).
+* Column headers for Clever fields will begin with `clever`. (e.g. `clever.id`).
+* The `matchmaker_results` column will contain a string telling you whether or not the record was matched. There are five possible values for this column:
+* `match` \- the record was matched
+* `from app, no match` \- the record from your application could not be matched to any record in Clever
+* `from app, duplicate` \- the record from your application was a duplicate with another record in your application. To match these records, we recommend that you pick one record to serve as the representative for all groups of duplicate records, remove the rest, and re-run matchmaker.
+* `from Clever, no match` \- the record in Clever could not be matched to any record from your application
+* `from Clever, duplicate` \- the record from Clever was a duplicate with another record from Clever. To match these records, you may need to work with the district and Clever Support to clean up their data.
+
+Once you receive your matching output, you can associate the matched records in your application with the corresponding Clever ID (found in the `clever.id` column).
+
+#### Privacy
+
+Matchmaker will only match app records against district records that have been shared with the app in Clever. Matchmaker input and output CSVs are purged from Clever's system 30 days after upload.

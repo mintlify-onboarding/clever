@@ -1,0 +1,34 @@
+---
+title: "Security"
+description: Clever's goal is to set the highest bar in the industry for student data privacy and security. [Learn more about our security and download our whitepaper here.](https://clever.com/trust/security/practices) 
+---
+
+### Security Best Practices
+
+As part of our ongoing commitment to data security and privacy, we’re requiring all Clever app account users to activate SSO or two-factor authentication (2FA) by **June 30th, 2023.**
+
+There are three login options available:
+
+1. App dashboard SSO
+2. [Sign in with Google](https://support.clever.com/hc/s/articles/000001563)
+3. [Two-factor authentication](https://support.clever.com/hc/s/articles/000001551)
+
+These login options offer a simple, effective way to protect your account from unauthorized access. They come at no cost to you.
+
+<Note>
+ 
+ Email provided in the OAuth token is not verified by Clever. That is, we do not warrant that the email is controlled by the user who was authenticated by Clever.
+ 
+ Before using the email for any authentication or authorization purpose make sure to match their Clever ID or have an alternate mechanism to verify they control the email address.
+ 
+ Since the value of the email address field are controlled by users of Clever; a malicious user when using the OAuth flow can have an email that is not verified by Clever. This can lead to account takeover if you trusted the email implicitly. Clever IDs are not controlled by the user. They are based on the authentication the complete with Clever and tied to that user’s identity.
+</Note>
+### Keep secrets secret
+
+Do not sent district-app tokens or your client secret (or full authorization headers!) through email or other non-secure channels - in fact, we recommend excluding them from your code, and only loading them as environment variables.
+
+<Note>
+ 
+ If our team spots a token or secret that has been sent through email, we will reset the token/secret within 24 hours.
+
+ </Note>

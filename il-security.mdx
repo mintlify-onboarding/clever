@@ -1,0 +1,15 @@
+---
+title: "Keeping SSO Secure"
+---
+
+### Preventing Cross-Site Request Forgery
+
+Cross-Site Request Forgery (CSRF) is a vulnerability that occurs when an attacker can cause a victim to perform an unintended action on a web resource. In the context of SSO, CSRF vulnerabilities can allow an attacker to force a victim to log in to an app using the attacker’s identity.
+
+For example, an attacker could generate an SSO link for their account and then put it in the source attribute of an image of a web page. They would then force a victim to visit this page, who would unknowingly make a request to clever.com with their existing session, which would log them in with the attackers account to the application in question.
+
+`<img src="https://clever.com/oauth/authorize?type=code&client_id=123456">`
+
+Depending on the configuration of the application, this may result in a low impact threat ("the victim is logged in to the application as the attacker and may accidentally type in sensitive data") or a high impact threat ("the attacker’s identity is silently added to the victim’s account in the application").
+
+For more information on this threat, see [this blog post](http://homakov.blogspot.com/2012/07/saferweb-most-common-oauth2.html). For information on protecting your integration against CSRF, see [Designing Your Integration](/docs/il-design).

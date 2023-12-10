@@ -1,0 +1,353 @@
+---
+title: "2a. OAuth Implementation"
+---
+
+This documentation will describe how OAuth is implemented within the Clever ecosystem.
+
+### Initiating Logins
+
+There are three ways a user can log in to your application using SSO: 
+
+* [The Clever Portal](/docs/oauth-implementation#sso-from-the-clever-portal)
+* [Instant Login Links](/docs/oauth-implementation#sso-using-instant-login-links)
+* [Log in with Clever buttons](/docs/oauth-implementation#sso-using-a-log-in-with-clever-button)
+  
+Your integration should be able to handle logins from any of these sources. Regardless of how the user is initiating SSO, they will need to authenticate into Clever at some point. 
+
+  
+As seen in the screenshot below, districts can set up different identity providers (IDPs) to authenticate their users into Clever. As it relates to your SSO integration, y**ou will not need to concern yourself with how users are logging into Clever**. Just know that this is a requisite step in order to start the SSO process with Clever.
+
+  
+![1444](/images/9ff1dd2-Clever___Log_in.png "Clever___Log_in.png")
+
+Screenshot of a Clever login page with multiple identity providers.
+
+  
+### SSO from the Clever Portal
+
+  
+![2874](/images/c858c4f-Clever___Homeroom.png "Clever___Homeroom.png")
+
+Screenshot of the Clever Portal from a teacher's perspective.
+
+  
+Many districts use the Clever Portal as the primary launch point for their applications. Once you are certified and connected to a district, your integration will be represented by an icon on the Clever Portal. When a user clicks this icon, they will be redirected to your **primary redirect URI** with an authorization code appended.
+
+  
+Take a look at this [Demo Experience](https://clever.com/in/demo) to see the user experience within Clever. Demo credentials can be found by clicking into the credentials fields.
+
+  
+**The steps below summarize how users will access your SSO integration by logging into their Clever Portal**
+
+  
+1. User accesses their district's Clever login page
+2. User chooses the correct IDP as defined by their district (i.e. "Log in with Google", "Log in with Active Directory").
+3. User is redirected to their identity provider
+4. User enters in their identity provider credentials
+5. On successful login, the user is navigated to their Clever Portal and clicks on an application icon to kick off the login process into the application.
+  
+### SSO Using Instant Login Links
+
+  
+Some districts prefer not to use the Clever Portal, but still want to use Clever SSO to allow teachers, students, and staff to access their applications. To support this, Clever built [Instant Login links](https://support.clever.com/hc/en-us/articles/205546348). These are links that can be embedded anywhere and are used to log a district's users into a specific application through SSO. An example Instant Login link is shown below: 
+
+  
+Text
+
+`https://clever.com/oauth/instant-login?client_id=YOUR_CLIENT_ID&district_id=THE_DISTRICT_ID
+`
+
+  
+**The steps below summarize how users will access your SSO integration by clicking an Instant Login Link**
+
+  
+1. User clicks on an Instant Login Link - these are usually embedded in their district's portal or homepage or saved as a bookmark in their browser
+2. User is taken to the Clever login page  
+   * This step, and steps 3 and 4 are skipped if the user is already logged in to Clever
+3. User clicks on the 'Log In with {IDP}' button - again, this step is skipped for districts that are using Clever-managed Passwords
+4. User enters in their credentials
+5. Clever kicks off the login process into the application.
+  
+### SSO Using a "Log In With Clever" Button
+
+  
+Some end-users are used to logging in directly from an application's site rather than using a portal. To allow users to use authenticate using Clever SSO, you can embed a "Log in with Clever" (LIWC) button on your website. Here are some examples: 
+
+![842](/images/d995bec-Access_Read_Ahead_-_Read_Ahead__Highlight_Ideas_with_Motion.png "Access_Read_Ahead_-_Read_Ahead__Highlight_Ideas_with_Motion.png")
+
+Example LIWC button using a Clever button asset
+
+![884](/images/81ab9eb-Login_-_Kahoot_.png "Login_-_Kahoot_.png")
+
+Example LIWC button using a Clever icon asset
+
+  
+A LIWC button is a link to `https://clever.com/oauth/authorize` with added parameters that define which application Clever should send the user to. The bare minimum of information that should be provided is:
+
+  
+* The type of `response` anticipated (in almost every case, we expect a `code` to be returned)
+* Your application's `client_id`
+* Your application's `redirect_uri`
+  
+Here's a sample LIWC URL:
+
+  
+Text
+
+`https://clever.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%2Fexample.com&client_id=YOUR_CLIENT_ID
+`
+
+  
+Notice that this link does not include a `district_id` parameter. This is because a link on your application's website should be accessible by users from _any district_. A typical user's district will be stored contextually within their browser. As such, if they were to click your LIWC button, they should be navigated directly to their district login page.
+
+  
+However, if the user's browser does not have the district context stored, the user is going to see the **Clever school picker**.
+
+  
+![1268](/images/bc8ef8d-Clever___Select_your_School.png "Clever___Select_your_School.png")
+
+Screenshot of the Clever school picker
+
+  
+End-users should be able to find their district's login page by typing in their school name. 
+
+> 🚧
+> 
+> When Testing Logins with Sandbox Data
+> 
+> Please note that you will not be able to search sandbox districts and schools by name. You will instead need to use the sandbox district ID.
+
+  
+If your application has district-specific login pages, you can also add `district_id`as a parameter on the URL to skip the school picker and go straight to the district's login page. 
+
+  
+This is also useful if you are testing with your sandbox district during development and want to skip the the school picker.
+
+  
+Example: 
+
+  
+Text
+
+`https://clever.com/oauth/authorize?response_type=code&redirect_uri=https%3A%2F%2Fexample.com&client_id=YOUR_CLIENT_ID&district_id=YOUR_DISTRICT_ID
+`
+
+  
+#### LIWC Button Assets
+
+  
+You can find assets for LIWC buttons [here](/docs/clever-assets).
+
+### Setting Up SSO in Clever
+
+  
+#### Requirements
+
+  
+* [A development application](/docs/getting-started)
+* A sandbox district - when you sign up for your development application, one is automatically created for you. You can also [create your own custom sandbox district using these instructions.](/docs/custom-sandbox-districts)
+* OIDC applications will need to contact [\[email protected\]](/cdn-cgi/l/email-protection#86efe8f2e3e1f4e7f2efe9e8f5c6e5eae3f0e3f4a8e5e9eb) to have the application configured for sending identity tokens
+  
+#### Enabling SSO
+
+  
+At the bottom of [your application's settings page](https://apps.clever.com/applications), you'll see your app's OAuth Settings.
+
+  
+![1373](/images/f2b97d8-Clever___Application_Settings-2.png "Clever___Application_Settings-2.png")   
+
+Here, you'll **define your Redirect URIs** \- the URL to which Clever will redirect your users and add a code at the start of the Authorization Grant flow. You can have more than one redirect URI, but please note that Clever will direct users to the first one in the list by default.
+
+  
+#### Redirect URI Requirements:
+
+  
+* The redirect URI should point to a location where you expect to receive users' login attempts
+* Development applications can use non-HTTPS URIs, but please note that all production applications are required to use HTTPS URIs
+  
+You'll also want to **enable SSO for users** \- use the dropdown to select which user types your application will support. Your application will only allow logins from users of the selected types. If not added:
+
+  
+* Users of the unselected type(s) will see a Clever error message if they attempt to log in through an Instant Login Link or Log In With Clever button.
+* Students & Teachers: the application will not appear in their Clever Portal
+* School & District Admins: the application will appear in their Clever Portal, but will have a flag indicating SSO is not supported for their user type. Clicking on the application icon will direct the user to the application's website
+  
+### Authenticating Users
+
+  
+> 📘
+> 
+> Using Third-party Authentication Services
+> 
+> If you are using a third-party authentication service, the steps below can be automatically performed after setting a few standard configuration fields. Visit [this section](#working-with-third-party-authentication-services) for more details.
+
+  
+#### Acquiring a Code
+
+  
+When a user attempts to log in to your application, Clever will redirect them to your application. If the login is Clever-initiated (Portal or Instant Login Link), this will be your primary redirect URI. If the login is from a LIWC button, you may specify a different redirect\_uri. 
+
+  
+When a user is redirected to your redirect URI, you'll find the `code` parameter attached with a variable length string as its value:
+
+  
+`https://primary.redirect?code=code`
+
+  
+At this point, you won't know who the user is or what type of user they are, but grab the code - you won't need to persist it for too long, but you will need it for the next step.
+
+  
+#### Redirect URI Parameters
+
+  
+Here are the parameters you can expect to see Clever add when redirecting users to your primary or specified redirect URI:
+
+  
+| Parameter | Guaranteed                     | Value                                        |
+| --------- | ------------------------------ | -------------------------------------------- |
+| code      | Yes                            | Code generated by Clever                     |
+| scope     | Yes                            | Scope assigned to your application by Clever |
+| state     | Only if provided via LIWC link | State value provided by your LIWC link       |
+
+  
+#### Exchanging the Code for a Token
+
+  
+> 📘
+> 
+> It may take your application a few seconds to complete these next steps of the token exchange sequence. We recommend rendering a user interface as quickly as possible while you take care of these server-side steps in the background.
+
+  
+Once you have the code, you can exchange it for access and identity tokens. To do this, you POST to `https://clever.com/oauth/tokens`. To assert the identity of your application, use Basic Authentication with your Client ID and Client Secret to formulate an HTTP Authentication header. 
+
+  
+#### Using Basic Authentication
+
+  
+HTTP client libraries offer a few methods to compute basic authentication. If your library supports setting a username and password, you'll want to set the `username` to your Client ID and the `password` to your Client Secret.
+
+  
+HTTP Basic auth headers are also easy to compute yourself. Start by constructing a string containing your Client ID followed by a colon (":") character and your Client Secret, then encode that string in Base64\. Set your Authorization HTTP header to this encrypted string preceded by the keyword Basic and a space:
+
+  
+`basic_auth_header = "Authorization: Basic " + Base64.encode(client_id + ":" client_secret)`
+
+  
+#### Building your POST Body
+
+  
+Clever accepts POSTs to oauth/tokens using both traditional web POST bodies of the `application/x-www-form-urlencoded` variety in addition to `application/json`. Make sure to always tell Clever what kind of content you're sending with an explicit Content-Type HTTP header.
+
+  
+> ❗️
+> 
+> Other POST body types, including `multipart/form-data`, are not accepted. If you receive 'invalid request / invalid content-type' error messages, make sure you're using either `application/x-www-form-urlencoded` or `application/json`
+
+  
+Ensure that you're properly escaping values in your POST bodies. In either approach, use UTF-8 characters. Proper URL-encoding is required for application/x-www-form-urlencoded requests.
+
+  
+HTTP libraries typically will take care of computing your Content-Length header — it is also required for POST requests.
+
+  
+The body of the request must have the following parameters:
+
+  
+| **Parameter** | **Example**                    | **Description**                                                   |
+| ------------- | ------------------------------ | ----------------------------------------------------------------- |
+| code          | heRte321                       | The exchange code received on your redirect URI                   |
+| grant\_type   | authorization\_code            | The type of exchange; always authorization\_code in this sequence |
+| redirect\_uri | https://flightschool.edu/oauth | The _exact_ redirect URI at which the code was received           |
+
+  
+Here's what a POST looks like using `application/x-www-form-urlencode` \- note that the redirect URI is properly URL encoded:
+
+  
+`POST https://clever.com/oauth/tokens
+Authorization: Basic YW5WcFkyVnFkV2xqWldwMWFXTmxDZzpjY1hwWTR0cWRZbGVjNHAxYUdsMXVJ
+Content-type: application/x-www-form-url-encoded
+Content-length: 107
+code=heRte321&grant_type=authorization_code&redirect_uri=https%3A%2F%2Fflightschool.edu%2Foauth
+`
+
+  
+And here it is with `application/json`
+
+  
+`POST https://clever.com/oauth/tokens
+Authorization: Basic YW5WcFkyVnFkV2xqWldwMWFXTmxDZzpjY1hwWTR0cWRZbGVjNHAxYUdsMXVJ
+Content-type: application/json
+Content-length: 113
+{"code":"heRte321","grant_type":"authorization_code","redirect_uri":"https://flightschool.edu/oauth"}
+`
+
+  
+#### Acquiring the Token
+
+  
+Clever will respond with tokens as long as:
+
+  
+* `client_id` and `client_secret` are valid
+* `redirect_uri` matches where Clever sent the code
+* `code` is valid
+  
+> 🚧
+> 
+> Codes are valid for one minute, and may only be exchanged once.
+
+  
+The response looks like (`id_token` only present for apps configured for OIDC):
+
+  
+`HTTP 200 OK
+Content-type: application/json
+Content-length: 33
+{
+      "access_token":"access_token_here"
+      "id_token":"id_token_here"
+}
+`
+
+  
+Upon receiving this JSON response and storing tokens in whichever way is appropriate for your environment, you'll want to use it either the access token or the ID token to determine more information about its owner.
+
+  
+In the next step, we'll see how to find a user's Clever ID and figure out what type of user it belongs to. Access tokens should be stored in a secure place to use when you're making requests to the data API on behalf of that user.
+
+  
+> ❗️
+> 
+> Tokens expire after 24 hours and cannot be refreshed - do not store the token for long-term user identification. User sessions expire after 2 hours.
+
+  
+### Using the Tokens
+
+  
+Once an access token is acquired, it can be used at the `https://api.clever.com/v3.0/me` endpoint - this endpoint should return the user's Clever `id`, `district` ID, and the token `type`.
+
+  
+Typically, once you've obtained the access token you will want to immediately determine its owner. Access tokens obtained through Clever SSO grant access to a subset of Clever's Data API.
+
+  
+Identity tokens contain basic user information in the tokens themselves. This information is stored in a set of claims that have been Base-64 URL encoded. While you can decode the token directly, we recommend using a [language-specific library](https://jwt.io/libraries) to decode and verify the token.
+
+  
+#### Using bearer tokens
+
+  
+You now have an access token. It is yours to bear. Your application is the bearer of that access token. It is now your bearer token and it symbolizes the relationship between the user and your application.
+
+  
+Bearer tokens are easily used with any HTTP library that allows you to manually specify an HTTP Authorization header.
+
+  
+Your Authorization header value will be a string containing the word Bearer followed by a space character and then the access token value you received after exchanging your code.
+
+  
+If we were to issue a request using the bearer token we received in the last step, jsfUI2131da2f, our authorization header would look something like:
+
+  
+`GET https://api.clever.com/some_clever_resource
+Authorization: Bearer jsfUI2131da2f
+`

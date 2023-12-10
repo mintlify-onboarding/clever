@@ -1,0 +1,329 @@
+---
+title: "Initializing and Syncing Data"
+---
+
+[Clever's Data Model](/docs/data-model) mirrors the makeup of real world classrooms and school districts. Below we've outlined key design decisions in building your integration with our API.
+
+### District-level vs school-level endpoints
+
+Clever's top-level endpoint is the school district. For example, you can use ([/users](/reference/getusers)) to pull records at the district level or, if your data model is aligned to school level organizations, iterate across schools using ([/schools/{id}/users](/reference/getusersforschool)).
+
+When using ([/schools/{id}/users](/reference/getusersforschool)), please take note: by default, Clever includes all students and teachers associated with a given school's enrollments, even if this is not their primary school. If you only intend to pull in users with primary school association, you can add the parameter 'primary=true' to your API calls (e.g., schools/{Id}/users?primary=true).
+
+### Provisioning Users
+
+API v3.0 introduces ([/users](/reference/getusers)) as an endpoint bringing students, teachers, staff, district admins, and contacts under one object, individually queryable by adding a role type parameter (e.g., /users?role=teacher).
+
+#### Users vs. role-specific calls
+
+Depending on your data model, it might be advantageous to provision accounts by pulling in all users for a district or school and parsing 'role' in the API response to assign permissions.
+
+Review the roles and data fields you require access to in the [Data Access tab of your Clever dashboard](https://support.clever.com/hc/en-us/articles/360000216886-For-App-Partners-District-data-Access). If you do not require a specific role, such as contacts, disabling them within Data Access will omit these record from appearing in any /users calls, improving your efficiency in parsing records.
+
+You can make role-specific calls to the API in provisioning user accounts, but be aware that multi-role users will show up multiple times (for example, a staff member who is also a teacher).
+
+Next, we'll discuss design considerations in working with each user type.
+
+#### Students and teachers
+
+##### Students in more than one class
+
+It's very common for students to have more than one class and for several of these classes to be shared with your application. If your application supports only one classroom per student, we can work with districts to limit oversharing. However, you should consider workarounds in the case where the student must have multiple classes in the data shared from Clever.
+
+One strategy is to create multiple student records that are tied to the same Clever ID, one for each class - when a student signs in, they can pick which class to sign into. On logout (or with a drop-down or toggle in the UI) they can choose to switch to another class.
+
+Some of our applications choose to assign the student a default primary class using the first class or last class that is shared. However, this can get tricky if a student's enrollment data changes after the fact.
+
+Some applications have also assigned students to a self-generated course if a student has multiple sections. This allows the student to be created and to use their account, though they will not belong to either of the courses synced from the district SIS.
+
+##### Students and teachers with no classes
+
+It's possible to see students and teachers in our API that are not associated with any sections, even if only in small numbers. How will you handle these users if your application requires users to have classes?
+
+Many applications allow for students and teachers to exist without classes, albeit often with a more limited product experience.
+
+Some applications will still create these accounts, but display an error message to the user informing them they need to belong to a class in order to use the application.
+
+Other applications will skip provisioning these user records entirely.
+
+##### Multi-site users
+
+[Clever's Data Model](/docs/data-model) associates students and teachers with a primary school but also allows these records to be associated with sections at any school. As stated at the start, syncing from `/schools/<id>/users` will be inclusive of all students and teachers with enrollments at each school site.
+
+If your application allows each student or teacher to only be associated with one school, carefully consider how you will handle this use case!
+
+If you're data model does not readily handle multi-site users, the best strategy we've seen is to make sections school-agnostic. Any student and any teacher can be associated with a section, and users can access a section at any school as long as they are enrolled as a student or teacher.
+
+You could also create multiple user records that are tied to the same Clever ID, one for each class at each school. When a user signs in, they can pick which class to sign into. On logout (or with a drop-down or toggle in the UI) they can choose to switch to another class.
+
+Other applications will simply default to supporting a student or teacher's primary school, but not the additional sites.
+
+##### Sensitive data for students
+
+Data such as `iep_status`, `ell_status`, and `frl_status` are opt-in values for both the district and the application. By default, you will not receive these fields, unless you indicate they are necessary for your application from within your Clever dashboard's Data Access tab within Settings.
+
+#### District admins and staff
+
+Clever supports two administrator level user types. Consider these distinctions while developing features:
+
+* **District Administrators** are users permitted to access all data and features across a district's schools, sections, and students.
+* **Staff** are users permitted to access a more narrow set of data associated with specific schools and sections. These users may be school principals, school tech leads, or anyone else.
+
+Neither user type is provisioned by SIS data. To see how these accounts are created, check out [our guidance for district administrators](https://support.clever.com/hc/en-us/articles/202518038)
+
+##### Staff 
+
+Take note: unlike teachers, staff are not directly associated with any sections, but rather are associated at the school level
+
+##### Multi-role users (teachers, staff, district admins)
+
+It's common for a staff member at a district to occupy several different roles; for example, a teacher who is also a staff member or district administrator. We find that these users require both teacher privileges, such as managing class enrollments, and admin privileges, such as assigning teachers to classes.
+
+API 3.0 recognizes each these roles as data objects under one user with one Clever ID. For example, it's possible for a user to be a teacher, a staff member, and a district admin. When querying /users, this person's record will contain all three types. The same user would also appear when querying /users?role=teacher, /users?role=staff, or /users?role=district\_admin.
+
+Please take care when considering what permissions are applied to multi-role users. Depending on your application, you may choose to default to a higher level access or permissions if a teacher is also a staff member. However, there are cases where a staff member who is also a teacher, might receive only teacher level access rights.
+
+If your application does not support the notion of multi-role users. We recommend you provision multiple accounts for each of their roles and create a UI to allow the user to toggle between accounts at sign in.
+
+#### Student contacts
+
+Student contacts can also be pulled from /users?role=contact. If you're planning on utilizing student contact data, please see [Student Contacts](/docs/student-contacts) for more information.
+
+### Courses and Terms
+
+Courses and terms exist as top-level objects at the district level, but can also be pulled at the school level.
+
+### Courses
+
+#### Best practices for using Clever courses
+
+If your data model has school-specific courses instead of courses that belong to the whole district, you may need to create multiple copies of the Clever course for each school associated with that section.
+
+Courses do not list the IDs of related sections on the object itself; you'll want to either use [/courses/{id}/sections](/reference/getsectionsforcourse) to get the related sections or first sync courses and then use the course ID on synced sections to create the link back to the course in your database.
+
+### What to do if your district has no courses
+
+Courses are only created if districts choose to sync that data. If courses are required, we can work with the district to add course information into Clever. Please have the district reach out to the Clever Support team to authorize the addition of data.
+
+Alternatively, several customers have seen success with having administrators create terms and courses within the application and then providing a UI for sections to be associated with the appropriate term/course.
+
+### Terms
+
+#### Best practices for using Clever terms
+
+Terms are closely associated with a district's semesters or quarters, but can represent any period of time. For example, a year-long Algebra II section may have a “year” term which starts on the first day of school and ends on the last day of school, while a semester-long Advanced Placement Calculus section may have a “semester 2” term which begins in January and ends on the last day of school. 
+
+When present, term information can be used to further separate sections into logical buckets. Some SISs may reuse sections term-to-term, and only update enrollments, teachers, and term data for each section. Other districts may completely destroy sections as terms roll over, and when a new term begins you would receive all new sections with new Clever IDs. **Your application should be able to gracefully handle both scenarios.**
+
+If a term is deleted, you should deactivate the term. If the sections are still active, you should keep the sections as active. Users (or at least administrators) should be able to access old terms, or reactivate them if they need to edit information on the terms.
+
+#### What to do if your district has no terms
+
+Terms are only created if districts choose to sync that data. If terms are required, we can work with the district to add terms information into Clever. Please have the district reach out to the Clever Support team to authorize the addition of data.
+
+### Provisioning sections
+
+A section represents a specific instance of a class at a school, complete with a roster of students and any assigned teachers. 
+
+### Data element quirks
+
+#### Section names
+
+`name` is retrieved from the SIS if present. If section name is not available, Clever will generate a name by concatenating `course_name`, `teacher.name.last`, and `period` with `" - "` between field components for certain SIS sync types. Because districts have different conventions around section names, Clever can't guarantee that they'll be intuitive, unique, or human-readable. **We encourage you to allow your users to modify section names.**
+
+#### Subject
+
+Sections are automatically categorized into subject based on the section's `name` or `course_name`. While we do our best to automatically assign subjects, some sections may be categorized as "Other" or incorrectly categorized, so we recommend allowing for flexibility and exception handling, if you plan on using the `subject` field to filter or assign content in your product.
+
+#### Grade
+
+`grade` is set by the SIS if present. If not set by the SIS or if all sections in the data have the same grade, Clever will automatically assign a grade for each section based on the most common grade of enrolled students. Not all SISs have the concept of a section's grade, so this data is not always reliable.
+
+We do not recommend setting curriculum based on section grade. Wherever possible, use students' grades instead.
+
+#### Teachers
+
+In addition to the primary `teacher`, we provide the `teachers` list, which returns an array containing the primary teacher and any co-teachers in the class.
+
+### Connecting students and teachers
+
+Sections usually represent real-world classrooms, which makes them a critical resource for your application in setting up relationships between students and teachers.
+
+The `students` array on the section contains one or more Clever IDs representing students in the section, while the `teacher` and `teachers` fields may contain one or more Clever IDs representing teachers associated with the section. By way of a section, you'll find a teacher's students and a student's teachers.
+
+You may notice that sections have their own `school` field, independent of the school directly associated with students and teachers. In [Clever's Data Model](/docs/data-model), as in the real world, students and teachers may be enrolled in sections that do not necessarily correlate to what you may consider their "home school." In other words, **if a section belongs to School A, it may be taught by a teacher in School B, and have students enrolled from School C.**
+
+### Displaying section data to students and teachers
+
+SIS section names are not always intuitive to users, so it's worth thinking through usability implications when displaying them in your user interfaces. If you want to display the section-name as-is from Clever, **we encourage allowing your users to modify the name (and not allowing future syncs to overwrite user edits)** or implementing an additional "Display name" field. 
+
+Be sure to leverage additional metadata about sections (such as teacher and period info) so that users don't have to rely on section names only to identify classes.
+
+### Filtering for specific sections
+
+If your application has specialized section needs (e.g. only syncing mathematics or special education courses), there are few ways to ensure you receive the relevant records. First, Clever provides tools on the district side that allow for very granular sharing, so this is the first line of defense against overshared data. You can also set a [globally recommended sharing template](https://support.clever.com/hc/en-us/articles/360043113752-For-App-Partners-Setting-up-recommended-sharing-for-districts) in your Clever dashboard's District Setup page, so district administrators have a starting place for sharing the right data (for example, math sections for grades 2 thru 8).
+
+Clever also allows your support and implementation teams to [filter out schools and sections broadly](https://support.clever.com/hc/en-us/articles/115003249203-For-App-Partners-Creating-filters-for-district-data) for each school district from within the Clever dashboard.
+
+If there are certain sections with attributes that should always be blocked from coming over to your program, then we can also employ a set of [Data Errors](https://support.clever.com/hc/en-us/articles/215806337-For-App-Partners-Verifying-district-data-quality).
+
+Most districts will leverage Clever's sharing systems to only share the data your application needs, but you may find yourself wanting to programmatically parse and filter sections based on your own criteria.
+
+While Clever normalizes the `subject` field in API responses, there may be situations where districts are unable to provide Clever with a subject that is automatically categorizable. Certain subjects required by your app may be categorized as "other," or even as "interventions/online learning."
+
+You may also find yourself needing to load sections that belong to a particular grade, such as "all 9th grade math classes." Many school districts do not have grade information available for sections, so we do not recommend strongly tying filtering logic to section `grade` fields.
+
+Rather than filtering on section or grade, it's best to retrieve all data shared with your application and apply logic on your backend. One way to do this is to load Clever data into a temporary/staging area and allow an administrator or support team member to select which sections, or types of sections, should be loaded into your application via an interface.
+
+### Student-teacher associations without sections
+
+In addition to sections, you can also pull student-teacher associations via the [GET /users/{id}/myteachers](/reference/getteachersforstudent) and [GET /users/{id}/mystudents](/reference/getstudentsforteacher) endpoints.
+
+This allows you to associate students and teachers without organizing them into classrooms based on sections.
+
+### Data requirements and exception handling
+
+Sometimes school data will contain incomplete information. It is important to determine how your application will handle this. 
+
+#### Clever's approach
+
+Clever's priorities (in order) when handling school SIS data are:
+
+1. Share only data authorized by the district (e.g. if a district limits sharing to one school, do not share any data outside of that scope).
+2. Share all of the data authorized by the school (e.g. make all students, teachers, and sections from that school available through the API).
+3. Standardize and clean up the data being shared. (i.e. normalize race codes between SISs/districts).
+4. Alert schools and developers to missing or low-quality data (e.g. show data warnings for teachers without an email address).
+
+In light of these priorities, Clever has adopted a permissive data schema with very few required fields (generally, a name, a Clever ID, and a unique identifier). When schools share incomplete records with Clever (e.g. a student with no grade level), rather than reject the record, Clever accepts the record and flags the quality issue as a "Data Warning".
+
+#### Handling exceptions
+
+By design, Clever will always represent district data as it exists in the SIS. It is therefore crucial to never make assumptions that are not specified in the Clever Schema about Data API fields. Applications written against the Clever API often have supplemental data requirements beyond Clever's required fields - "students must have birthdays", for example. Best practices for dealing with this scenario include:
+
+* **Let Clever know your application's data requirements.** With this information, Clever will customize and display Data Warnings for your application and request that districts share all fields that your application requires.
+* Fail gracefully when data requirements are not met.\*\* Consider an application that requires all students to have a valid birthday. How should this application handle a student record in Clever without a birthday field?
+* _Failed_: Processing a student record with a missing birthday raises an unhandled exception. The sync fails and many valid records are not processed.
+* _Better_: Processing a student record with a missing birthday generates a handled error and a log entry. That student's account will need to be "resynced" manually at some point, but all valid records are processed.
+* _Best (strict)_: Processing a student record with a missing birthday generates a handled error and a log entry. All other valid records are processed. If a student's record is updated to include birthday, the account will be created then.
+* _Best (permissive)_ : Student records with missing birthdays receive temporary "filler" birthdays, so that accounts can be automatically created. Filler birthdays are replaced by actual birthdays if the student's data is updated
+
+### Invalid characters/data, max character lengths, or duplicates
+
+Let Clever know so we can flag these as data warnings for your districts. As far as handling these errors, our best practice is to generate a log entry if values are invalid, duplicated or exceed max character lengths. Wherever possible, you should transform, ignore, or truncate the string or substitute a temporary "filler" value as a placeholder.
+
+Clever supports all UTF-8 characters, and your application should expect to receive special characters that might be found in names/email addresses such as _', -, ñ, à,_ etc.
+
+### Data not in Clever's schema
+
+Clever provides a normalized set of information that all applications need from the SIS - unfortunately this also means that we may not have data that your application requires in our schema.
+
+#### Data that can be approximated / inferred from Clever data
+
+A great example of this is graduation year, which is in our schema but not a required field. The best method of handling this is: when a student is created, you set their graduation year based on the current school year and their grade. This field should be editable (not overwritten by updated information) but administrators should be allowed edit the graduation year value after the student is created. We call this the "editable island."
+
+#### Data that cannot be approximated / inferred from Clever data
+
+If you have data that we cannot send at all (ie product license codes, etc) you will need to have a separate system for ingesting this data and associating it with the records in your database.
+
+In addition to sections, you can also pull student-teacher associations via the [GET /users/{id}/myteachers](/reference/getteachersforstudent) and [GET /users/{id}/mystudents](/reference/getstudentsforteacher) endpoints.
+
+This allows you to associate students and teachers without organizing them into classrooms based on sections.
+
+### Editing Clever-synced data
+
+Deciding whether to allow manual updates or overrides to Clever data is the most important design decision you will make as you build an integration with Clever. The approach you take will have a major impact on data integrity, school satisfaction, and code complexity.
+
+> 📘
+> 
+> Any of the following strategies are valid, but please note that teachers and districts increasingly want the ability to edit data or create custom groups without data being overwritten by the Clever sync.
+
+### SIS lockdown
+
+A straightforward approach to syncing data is to treat the district SIS data (as transmitted through Clever) as the single source of truth for roster information. Using this approach, all data that comes from Clever is authoritative and can't be modified, deleted, or added to. Users may be able to edit supplemental data (e.g. they could set a student's nickname, as this is not a Clever-provided field).
+
+#### Advantages:
+
+* Makes development simple and straightforward - no conflict resolution
+* Encourages good data practices with schools (e.g. all students must be promptly added to the SIS), pleasing district administrators
+* Easy to explain to administrators and teachers
+
+#### Disadvantages
+
+* Teachers must rely on district SIS data fidelity and data being kept up-to-date
+* May require development to "lock down" product UI if current UI supports manual updates
+
+### Two-way sync
+
+A more complex approach to data sync is to "merge" SIS data coming through Clever with manual changes teachers and/or administrators make to roster information in your app. Using this approach, all data can be edited by hand by users with appropriate permissions.
+
+#### Advantages:
+
+* Very flexible - gives teachers and/or administrators the ability to resolve changes themselves
+
+#### Disadvantages:
+
+* Complex development
+* High risk of sync conflicts or users "fighting" the sync (e.g. user adds student to class, but student is removed from class on next Clever sync)
+* Can be difficult to explain to teachers/administrators
+
+### Partial lockdown
+
+This approach is a hybrid of the two earlier sync methods. In this approach, all SIS data is loaded into the product via Clever and "locked down" so that it can't be modified. However, teachers and/or administrators also have the ability to create "manually managed" resources that will not be synced. In a best practice implementation of this approach, students, teachers, and classes that come from Clever are clearly identified in the UI from manually-created resources.
+
+#### Advantages:
+
+* More flexible than a full "lockdown" approach by allowing users to add students and classes that are not in the SIS
+* Less complex than two-way merge (assuming UI indicates automatic vs manual resources)
+
+#### Disadvantages:
+
+* Requires more development work than "lockdown" approach
+* Offers users less control than two-way merge for some scenarios (e.g. can't add one student to a class, instead need to manually create a new class with all students)
+
+### Manually-triggered sync
+
+This approach allows manual updates in the product and gives users the ability to pick and choose which updates from Clever to apply. users could choose to load all data from Clever or to sync specific sections, for example.
+
+#### Advantages:
+
+* Gives users the ability to ignore data from the SIS (e.g. setting up groupings within the product that aren't overwritten on subsequent syncs)
+* Gives users the ability to temporarily add information into the product if there's a lag in the SIS update (e.g. add a student to the product, then update from Clever when the SIS is updated)
+
+#### Disadvantages:
+
+* Requires more development effort than other approaches
+* Handing conflicts between users could add complexity
+
+### Custom groups
+
+One key functionality teachers ask for is the ability to create custom groups within applications. There's a couple ways to support this:
+
+### Creating additional groups
+
+This generally requires a two-way sync or partial lockdown approach to syncing data. Essentially, provide teachers with the ability to create a new group, unaffected by ongoing Clever syncs, and populate it with Clever (and perhaps manually-created) students.
+
+#### Pulling from associated students
+
+Using the [GET /users/{id}/mystudents](/reference/getstudentsforteacher) endpoint, you can provide the teacher with their Clever students. The teacher can then pick and choose which students to add to the group
+
+#### Copying existing classes
+
+Give teachers a list of their sections, and allow the teacher to select an enrollment group to pull into the new group. Once populated, the teacher can then add or remove students to the group.
+
+### Splitting sections into custom sub-groups
+
+Allow a teacher to divide section into several groups, which contain students in the section. 
+
+![845](/images/dbffe2e-Section_subgroups.png "Section subgroups.png") 
+
+The overall enrollment remains the same, but section subgroups are controlled by the teacher!
+
+### Sync frequency
+
+We require that applications sync with Clever at least once per day.
+
+Additionally, you should be able to sync new data on demand if a district has urgent data to sync or any issues arise.
+
+### Historical information
+
+Sections represent an abstraction to connect students and teachers together. It may be tempting to associate certain other data, for example coursework or assignments, to a section in your application. However, keep in mind that while a section may have the same name throughout the year, the students and teachers in that section will come and go. It's therefore important to associate data to less transient elements - coursework or longitudinal data should be associated (By Clever's `id`) with students, not sections.

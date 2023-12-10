@@ -1,0 +1,78 @@
+---
+title: "3a. Library Certification Guide"
+---
+
+## How Long Does it Take?
+
+The time it takes to build an integration with Clever varies depending on your business needs, data model, and technical constraints.
+
+Once you have built a Clever integration, you may submit to become certified. After you submit your certification, our Partner Engineering team will review your integration in accordance with our certification requirements. Once we've finished reviewing your submission, you’ll receive an email with your certification results and recommended next steps. If needed, we will schedule a call to go over the integration in greater detail.
+
+## How Do I Get Started?
+
+Create a developer account at apps.clever.com/signup. You can then refer to our Library integration documentation here:
+
+[Getting Started in the Library](/docs/classroom-getting-started) 
+
+## Checklist
+
+You will need to ensure the following items are complete before submitting for certification.
+
+* Visit [Clever Academy](https://clever.academy/) to make sure you understand how Clever works.
+* As part of the Library Certification process, you will also need to sign our Universal DSA. Please reach out to [\[email protected\]](/cdn-cgi/l/email-protection#abcadbdbc7c2c8cadfc2c4c586c2c5dfced9ced8dfebc8c7ceddced985c8c4c6) to receive this form. Here is an example: [Universal DSA](https://assets.clever.com/documents/universal%5Fdsa.pdf)
+* Upload [marketing collateral](https://support.clever.com/hc/s/articles/360047962012?language=en%5FUS) in your dashboard.
+* Test your integration thoroughly. A testing guide for Library integrations can be found here: [Testing Your Integration](/docs/classroom-testing).
+* Meet the integration requirements listed below
+
+#### Integration Requirements
+
+Your app must:
+
+* Use the authorization grant flow to support SSO
+* Provision accounts on-demand for all teachers and students (if you have a student experience)
+* Provide a free trial or demo
+* Utilize all relevant data from Clever API
+* Support a student experience if there is one in application
+* Match users on Clever ID when they log in
+* Allow teachers to merge Clever account with existing account upon first login
+* Support students with multiple teachers
+* Support teachers with zero sections
+* Allow users to log in on the primary redirect URI, even if application is multi-tenant. Redirect URI must be secured with https
+* Show a friendly error screen when logins fail
+* Update all data upon each subsequent login or provide a method for users to sync data
+* Provide clear indication to user that they are logged in to the correct account
+* Provide a "Log Out" button
+
+#### Recommendations
+
+* Add a "Log in with Clever" button to log-in page
+* For required fields that you can't get from the API, prompt users to provide this information on first login
+* Indicate that class rosters are automatically imported from Clever (if your application supports the concepts of classes/sections)
+* Minimize onboarding steps and questions upon signup using available fields in Clever API
+* Leverage data available from Clever (e.g.name, email, role, grade level, subject)
+* Allow teachers to re-sync their data from Clever on demand
+* Allow teachers to select and customize which classes are surfaced and synced via Clever
+* Associate students with teachers via the Clever API data, i.e. do **not** require entry of class codes to be associated with a classroom
+* Support sections with multiple co-teachers
+* Support teachers with 10+ sections
+* Support sections with 100+ students
+* Support students, teachers, and sections with names that contain utf-8 characters, such as ñ or é
+* Override any existing session in your application in order to support students on shared devices
+
+#### Important questions to answer
+
+* Does your integration work in:  
+   * Chrome  
+   * Firefox  
+   * Internet Explorer  
+   * Safari  
+   * Mobile Safari  
+   * Mobile Chrome
+* What is the setup process when a teacher decides to sign up for your app?
+* Do you require roster information?
+* Do you have any specific rostering requirements (e.g. syncing only Math sections, etc.)? If so, will you build a UI that allows teachers to only see relevant sections/classes?
+* Will you update the data upon each login or will users have an option to sync new data within your application?
+* Do you support co-teachers? How will you handle this if so?
+* Do you require any other fields than the ones provided (e.g. school, district info)? If so, do you prompt the user for these during onboarding?
+* Is there an amount of inactivity after which you log someone out?
+* What screen are users directed to when they're logged out? Does the window close?
